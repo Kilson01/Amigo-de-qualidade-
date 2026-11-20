@@ -1,0 +1,1896 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title id="pageTitle">ModaGest — Sistema de Gestão para Lojas</title>
+<style>
+:root{
+  --navy:#173b63;
+  --blue:#245b91;
+  --bg:#f2f5f9;
+  --ink:#1c2733;
+  --muted:#667789;
+  --line:#dce3eb;
+  --green:#16865d;
+  --red:#c33d45;
+  --orange:#d97706;
+  --panel-bg:#ffffff;
+  --th-bg:#f5f8fb;
+  --th-ink:#43576b;
+  --tr-hover:#fafcff;
+}
+*{box-sizing:border-box}
+body{margin:0;font:14px "Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--ink)}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;border:0;border-radius:7px;padding:10px 16px;background:var(--blue);color:white;font-weight:600;transition:opacity .2s}
+button:hover{opacity:.9}
+button.secondary{background:#e7edf4;color:#24415e}
+button.danger{background:var(--red)}
+button.success{background:var(--green)}
+button.warning{background:var(--orange)}
+input,select,textarea{width:100%;padding:10px;border:1px solid #cbd5df;border-radius:7px;background:#fff;color:var(--ink)}
+input[type="checkbox"]{width:auto}
+input[type="color"]{padding:2px;height:40px;cursor:pointer}
+label{display:block;font-weight:600;margin:9px 0 5px}
+.login-wrap{min-height:100vh;display:grid;place-items:center;padding:20px;background:linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%)}
+.login-card{background:var(--panel-bg);width:min(440px,100%);padding:35px;border-radius:16px;box-shadow:0 15px 50px rgba(0,0,0,.2)}
+.brand{font-size:24px;font-weight:800;color:var(--navy);margin-bottom:4px;letter-spacing:.5px}
+.muted{color:var(--muted);font-size:13px}
+#app{display:none;min-height:100vh}
+.top{height:65px;background:var(--navy);color:white;display:flex;align-items:center;justify-content:space-between;padding:0 24px;box-shadow:0 2px 10px rgba(0,0,0,.1)}
+.top strong{font-size:20px;letter-spacing:.5px}
+.shell{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 65px)}
+nav{background:var(--panel-bg);border-right:1px solid var(--line);padding:20px 12px}
+nav button{display:block;width:100%;text-align:left;margin:4px 0;background:transparent;color:var(--ink);font-weight:600;padding:12px 14px;border-radius:8px}
+nav button.active,nav button:hover{background:#e9f1fa;color:var(--navy)}
+main{padding:25px;min-width:0}
+.pagehead{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:10px;flex-wrap:wrap}
+.pagehead h1{font-size:22px;margin:0;color:var(--navy)}
+.panel{background:var(--panel-bg);border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 2px 6px rgba(0,0,0,.02)}
+.panel h3{margin:0 0 15px;color:var(--navy)}
+table{border-collapse:collapse;width:100%}
+th,td{padding:12px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{background:var(--th-bg);color:var(--th-ink);font-size:12px;text-transform:uppercase}
+tr:hover td{background:var(--tr-hover)}
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 15px}
+.full{grid-column:1/-1}
+.alert{padding:12px 14px;border-radius:8px;margin:12px 0;font-size:13px}
+.error{background:#ffebeb;color:#a3272e}
+.successmsg{background:#e7f7ef;color:#176b48}
+.info{background:#eef4fc;color:#1d4ed8}
+.toast{position:fixed;right:25px;bottom:25px;background:var(--navy);color:white;padding:14px 20px;border-radius:10px;z-index:99;box-shadow:0 6px 25px rgba(0,0,0,.2);font-weight:600;max-width:90vw}
+.product-img{width:48px;height:48px;object-fit:cover;border-radius:7px;border:1px solid var(--line);background:#f5f8fb;display:block}
+.badge-pill{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase}
+.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;text-transform:uppercase}
+
+/* Caixa de Upload Estilo Galeria */
+.upload-box{border:2px dashed #b6c6d8;border-radius:12px;padding:22px 15px;text-align:center;background:#f8fafd;cursor:pointer;transition:all .2s;margin-top:6px}
+.upload-box:hover{border-color:var(--blue);background:#eef4fc}
+.upload-title{font-weight:700;font-size:15px;color:var(--navy);margin-bottom:4px}
+.upload-sub{font-size:12px;color:var(--muted);margin-bottom:8px}
+.upload-badge{display:inline-block;background:#e7f7ef;color:#16865d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px}
+.preview-wrap{position:relative;display:inline-block;margin-top:5px}
+.preview-img{max-width:100%;max-height:170px;border-radius:9px;border:1px solid var(--line);display:block;margin:0 auto}
+.noimg-box{display:grid;place-items:center;font-size:10px;color:#888;background:#eef4fc;border-radius:6px}
+
+/* Visão Geral */
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:15px;margin-bottom:20px}
+.dash-card{background:var(--panel-bg);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:0 2px 6px rgba(0,0,0,.02)}
+.dash-card h3{margin:0;font-size:15px;color:var(--navy)}
+.dash-big{font-size:22px;font-weight:800;color:var(--navy);margin:8px 0 4px}
+.dash-line{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:4px 0;border-bottom:1px dashed var(--line)}
+.dash-legend{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.45}
+
+/* Estilos do PDV / Caixa */
+.pos-layout{display:grid;grid-template-columns:1fr 390px;gap:20px;align-items:start}
+.pos-catalog{display:grid;grid-template-columns:repeat(auto-fill, minmax(155px, 1fr));gap:12px;max-height:70vh;overflow:auto;padding:2px}
+.pos-tile{background:var(--panel-bg);border:1px solid var(--line);border-radius:10px;padding:12px;cursor:pointer;transition:all .2s;text-align:left;display:flex;flex-direction:column;justify-content:space-between}
+.pos-tile:hover{border-color:var(--blue);box-shadow:0 4px 12px rgba(36,91,145,.15);transform:translateY(-2px)}
+.pos-tile img{width:100%;height:110px;object-fit:cover;border-radius:6px;background:#f5f8fb;margin-bottom:8px}
+.pos-tile .noimg-box{width:100%;height:110px;margin-bottom:8px}
+.cart-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.pay-methods{display:grid;grid-template-columns:repeat(2, 1fr);gap:8px;margin:10px 0}
+.pay-btn{background:#e7edf4;color:#24415e;border:1px solid #cbd5df;padding:10px;font-size:13px;font-weight:600;border-radius:8px;text-align:center;cursor:pointer}
+.pay-btn.active{background:var(--navy);color:white;border-color:var(--navy)}
+.troco-box{background:#f5f8fb;border:1px solid var(--line);border-radius:8px;padding:12px;margin:12px 0}
+
+/* ESTILO EXCLUSIVO PARA IMPRESSÃO DE TALÃO E RELATÓRIOS */
+@media print {
+  body * { visibility: hidden; }
+  #printReceiptModal, #printReceiptModal * { visibility: visible; }
+  #printReceiptModal { position: absolute; inset: 0; background: #fff !important; padding: 0 !important; margin: 0 !important; width: 100% !important; box-shadow: none !important; border: none !important; }
+  .no-print { display: none !important; }
+
+  /* Relatórios (Via 1 e Via 2, cada uma em folhas A4) */
+  body.printing-report #app, body.printing-report #loginScreen, body.printing-report #toastRoot { display: none !important; }
+  body.printing-report #printReportModal, body.printing-report #printReportModal * { visibility: visible; }
+  body.printing-report .print-overlay { position: static !important; background: none !important; padding: 0 !important; overflow: visible !important; }
+  body.printing-report .print-overlay > div { max-width: none !important; width: 100% !important; margin: 0 !important; padding: 0 !important; border-radius: 0 !important; }
+  .rep-table thead { display: table-header-group; }
+  .rep-table tr { page-break-inside: avoid; }
+  .html2pdf__page-break { page-break-after: always; break-after: page; }
+  @page { size: A4; margin: 12mm; }
+}
+.html2pdf__page-break{height:0;page-break-after:always;break-after:page}
+.rep-table{border-collapse:collapse;width:100%}
+.rep-table th,.rep-table td{border:1px solid #cbd5df;padding:5px 7px;text-align:left;vertical-align:top;font-size:12px}
+.rep-table th{background:#f5f8fb;font-size:11px;text-transform:uppercase}
+
+@media(max-width:960px){.pos-layout{grid-template-columns:1fr}.shell{grid-template-columns:1fr}nav{display:flex;overflow:auto;border-right:0;border-bottom:1px solid var(--line);padding:10px}nav button{min-width:140px}}
+@media(max-width:560px){.formgrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- ECRÃ DE LOGIN / REGISTO -->
+<div id="loginScreen" class="login-wrap">
+  <div class="login-card">
+    <div class="brand" id="loginBrandName">ModaGest</div>
+    <div class="muted" id="loginBrandSubtitle">Gestão Inteligente para Lojas em Moçambique</div>
+    <div id="loginMsg"></div>
+    <form id="loginForm" style="margin-top:20px">
+      <label>E-mail ou Utilizador</label><input id="loginUser" required placeholder="Ex: admin ou seu@email.com">
+      <label>Palavra-passe</label><input id="loginPass" type="password" required placeholder="••••••••">
+      <button type="submit" style="width:100%;margin-top:18px">Entrar no Sistema</button>
+    </form>
+    <div style="text-align:center;margin-top:18px;border-top:1px solid var(--line);padding-top:15px">
+      <span class="muted">Não tem conta de Caixa?</span><br>
+      <button class="secondary" style="width:100%;margin-top:8px" onclick="showRegisterModal()">Registar nova conta de Caixa</button>
+    </div>
+  </div>
+</div>
+
+<!-- APLICAÇÃO PRINCIPAL -->
+<div id="app">
+  <header class="top">
+    <strong id="topBrandHeader">ModaGest — Moçambique</strong>
+    <span style="display:flex;align-items:center;gap:8px">
+      <span id="userLabel"></span>
+      <button class="secondary" onclick="atualizarDadosSistema()" style="padding:6px 12px;font-size:13px" title="Atualizar dados sem sair">🔄 Atualizar</button>
+      <button class="secondary" id="logoutBtn" style="padding:6px 12px;font-size:13px">Sair</button>
+    </span>
+  </header>
+  <div class="shell">
+    <nav id="navMenu">
+      <button class="active" data-page="dashboard">▦ Visão Geral</button>
+      <button data-page="pos">▣ Caixa / PDV</button>
+      <button data-page="products">▤ Produtos e Stock</button>
+      <button data-page="expenses" id="navExpenses" style="display:none">🧾 Despesas</button>
+      <button data-page="sales" id="navSales" style="display:none">💵 Histórico e Fecho</button>
+      <button data-page="users" id="navUsers" style="display:none">👥 Aprovar Caixas</button>
+      <button data-page="settings" id="navSettings" style="display:none">⚙️ Definições</button>
+    </nav>
+    <main id="contentArea"></main>
+  </div>
+</div>
+
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getDatabase, ref, get, set, push, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+  const firebaseConfig = { databaseURL: "https://amigo-de-qualidade-default-rtdb.firebaseio.com" };
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  const CLOUD_NAME = "t45tpzth";
+  const UPLOAD_PRESET = "Amigo de qualidade";
+
+  // ---------- Constantes de negócio ----------
+  const DEFAULT_PRODUCT_CATEGORIES = ['Capulanas','Painéis solares','Produtos de vestuário','Produtos alimentares','Materiais de limpeza','Máquinas de costura','Equipamentos elétricos','Ferramentas','Outros produtos diversos'];
+  const DEFAULT_EXPENSE_CATEGORIES = ['Transporte','Energia','Combustível','Água','Internet','Comunicação','Salários','Aluguer da loja','Manutenção de equipamentos','Alimentação em serviço','Impostos e taxas','Material de escritório','Outras despesas'];
+  const UNIT_TYPES = ['un.','pacote','fardo','caixa','saco','litro','kg','metro','plástico','lote'];
+  const EXPENSE_TYPES = { operacional: 'Operacional', aquisicao: 'Aquisição (não contabilizada)', outra: 'Outra despesa' };
+  const STOCK_BAIXO = 3;        // stock igual ou abaixo deste valor = baixo
+  const REPOSICAO_IDEAL = 10;   // stock de referência para cálculo da reposição
+  const PERIOD_LABELS = { diario: '📅 Hoje', semanal: '📊 Semana', mensal: '📈 Mês', anual: '🗓️ Ano', tudo: '♾️ Tudo' };
+  const REPORT_TITLES = {
+    diario: 'Relatório Diário (Hoje)',
+    semanal: 'Relatório Semanal (Esta Semana)',
+    mensal: 'Relatório Mensal (Este Mês)',
+    anual: 'Relatório Anual (Este Ano)',
+    tudo: 'Relatório Geral (Todas as Vendas)'
+  };
+  const REPORT_FILE = { diario: 'Diario', semanal: 'Semanal', mensal: 'Mensal', anual: 'Anual', tudo: 'Geral' };
+
+  const DEFAULT_SETTINGS = {
+    companyName: "ModaGest",
+    companySubtitle: "Gestão Inteligente para Lojas em Moçambique",
+    topHeaderSuffix: "Moçambique",
+    navyColor: "#173b63",
+    blueColor: "#245b91",
+    bgColor: "#f2f5f9",
+    inkColor: "#1c2733",
+    panelBgColor: "#ffffff",
+    thBgColor: "#f5f8fb",
+    thInkColor: "#43576b",
+    lineColor: "#dce3eb"
+  };
+
+  // ---------- Estado ----------
+  let appSettings = { ...DEFAULT_SETTINGS };
+  let isUploadingImage = false, isUploadingExpense = false, isSaving = false;
+  let currentUser = null, tempImageData = '', expPhoto = '';
+  let productsCache = [], salesCache = [], purchasesCache = [], expensesCache = [];
+  let productCategories = [], expenseCategories = [];
+  let cart = [], selectedPayMethod = 'Dinheiro';
+  let currentReportFilter = 'diario', currentPage = 'dashboard';
+  let dashPeriod = 'mensal';
+  let expPeriod = 'mensal', expCat = '', expSearch = '';
+  let historyTab = 'vendas', historySearch = '', showArchived = false;
+
+  // ---------- Utilidades ----------
+  const $ = id => document.getElementById(id);
+  const num = v => Number(v) || 0;
+  const r2 = v => Math.round(num(v) * 100) / 100;
+  const r4 = v => Math.round(num(v) * 10000) / 10000;
+  const sumBy = (arr, fn) => arr.reduce((a, x) => a + (Number(fn(x)) || 0), 0);
+  const money = n => (Number(n) || 0).toLocaleString('pt-MZ', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' MT';
+  const pct = n => (Number(n) || 0).toLocaleString('pt-MZ', {minimumFractionDigits:1, maximumFractionDigits:1}) + ' %';
+  const isDono = () => !!currentUser && currentUser.role === 'Dono';
+  // Custo unitário atual do produto (compatível com registos antigos que só têm "cost")
+  const unitCostOf = p => num(p.costUnit ?? p.cost);
+  const isActiveSale = s => !s.estornada && !s.archived;
+  const saleCost = s => sumBy(s.items || [], i => num(i.qty) * num(i.unitCost));
+  const hasCost = s => (s.items || []).every(i => i.unitCost !== undefined && i.unitCost !== null);
+
+  // ---------- Palavras-passe (PBKDF2-SHA256 com sal) ----------
+  const newSalt = () => Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2,'0')).join('');
+  async function hashPass(pass, salt) {
+    const enc = new TextEncoder();
+    const key = await crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveBits']);
+    const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: enc.encode(salt), iterations: 100000, hash: 'SHA-256' }, key, 256);
+    return Array.from(new Uint8Array(bits)).map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+  async function setPassword(obj, pass) {
+    obj.salt = newSalt();
+    obj.passHash = await hashPass(pass, obj.salt);
+    delete obj.pass;
+    return obj;
+  }
+  // Contas antigas com palavra-passe em texto simples continuam a entrar (e são convertidas no login)
+  async function checkPassword(user, pass) {
+    if(user.passHash && user.salt) return (await hashPass(pass, user.salt)) === user.passHash;
+    return user.pass !== undefined && user.pass !== null && user.pass === pass;
+  }
+  const sessionOf = u => ({ id: u.id, name: u.name, role: u.role, username: u.username, email: u.email, status: u.status });
+
+  function toast(msg) { $('toastRoot').innerHTML = `<div class="toast">${msg}</div>`; setTimeout(() => $('toastRoot').innerHTML = '', 3500); }
+  function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function overlay(inner) { return `<div style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:grid;place-items:center;padding:15px;z-index:99">${inner}</div>`; }
+
+  // Confirmação com palavra-passe do Dono (para ações sensíveis)
+  async function confirmDono(msg) {
+    if(!confirm(msg)) return false;
+    const p = prompt('Confirme com a palavra-passe do Dono:');
+    if(p === null) return false;
+    const snap = await get(ref(db, `users/${currentUser.id}`));
+    if(!(await checkPassword(snap.val() || {}, p))) { toast('Palavra-passe incorreta. Ação cancelada.'); return false; }
+    return true;
+  }
+
+  // ---------- Períodos ----------
+  const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+  function periodRange(type) {
+    const now = new Date();
+    const y = now.getFullYear(), m = now.getMonth();
+    const sod = new Date(y, m, now.getDate());
+    if(type === 'diario') return [sod, addDays(sod, 1)];
+    if(type === 'semanal') { const ws = addDays(sod, -((sod.getDay() + 6) % 7)); return [ws, addDays(ws, 7)]; }
+    if(type === 'mensal') return [new Date(y, m, 1), new Date(y, m + 1, 1)];
+    if(type === 'anual') return [new Date(y, 0, 1), new Date(y + 1, 0, 1)];
+    return null; // tudo
+  }
+  function inPeriod(iso, type) {
+    if(!iso) return false;
+    const d = new Date(iso);
+    if(isNaN(d)) return false;
+    const r = periodRange(type);
+    return !r || (d >= r[0] && d < r[1]);
+  }
+  function periodLabel(type) {
+    const fmt = d => d.toLocaleDateString('pt-MZ');
+    const now = new Date();
+    if(type === 'diario') return fmt(now);
+    if(type === 'semanal') { const [a, b] = periodRange('semanal'); return `${fmt(a)} a ${fmt(addDays(b, -1))}`; }
+    if(type === 'mensal') return now.toLocaleDateString('pt-MZ', { month: 'long', year: 'numeric' });
+    if(type === 'anual') return String(now.getFullYear());
+    return 'Desde o início';
+  }
+  function periodButtons(current, fn) {
+    return Object.entries(PERIOD_LABELS).map(([t, l]) =>
+      `<button class="${t === current ? '' : 'secondary'}" style="padding:7px 14px;font-size:13px" onclick="${fn}('${t}')">${l}</button>`).join('');
+  }
+
+  // Vendas do período. Por defeito exclui estornadas e arquivadas (não contam nos totais).
+  function filterSalesByPeriod(list, type, opts = {}) {
+    return list.filter(s => {
+      if(!s.date || !inPeriod(s.date, type)) return false;
+      if(s.estornada && !opts.includeVoided) return false;
+      if(s.archived && !opts.includeArchived) return false;
+      return true;
+    }).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  }
+
+  // Resumo financeiro de um conjunto de vendas ativas
+  function summarizeSales(list) {
+    const active = list.filter(isActiveSale);
+    const fat = sumBy(active, s => s.total);
+    const cmv = sumBy(active, saleCost);
+    const lucro = fat - cmv;
+    const byMethod = ['Dinheiro','M-Pesa','e-Mola','mKesh'].map(m => {
+      const arr = active.filter(s => s.paymentMethod === m);
+      return { m, n: arr.length, t: sumBy(arr, s => s.total) };
+    });
+    const byCategory = {};
+    active.forEach(s => (s.items || []).forEach(i => {
+      const c = i.category || 'Sem categoria';
+      byCategory[c] = (byCategory[c] || 0) + num(i.qty) * num(i.price);
+    }));
+    return {
+      n: active.length, fat, cmv, lucro,
+      margem: fat > 0 ? lucro / fat * 100 : 0,
+      semCusto: active.filter(s => !hasCost(s)).length,
+      byMethod,
+      byCategory: Object.entries(byCategory).sort((a, b) => b[1] - a[1])
+    };
+  }
+
+  // ---------- Carregamento de dados ----------
+  async function loadList(path) {
+    const snap = await get(ref(db, path));
+    const out = [];
+    if(snap.exists()) snap.forEach(c => { out.push({ id: c.key, ...c.val() }); });
+    return out;
+  }
+  async function loadProducts() {
+    productsCache = (await loadList('products')).sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+  }
+  async function loadSales() { salesCache = await loadList('sales'); }
+  async function loadPurchases() {
+    purchasesCache = (await loadList('purchases')).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  }
+  async function loadExpenses() {
+    expensesCache = (await loadList('expenses')).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  }
+  // Cria as categorias padrão apenas quando o nó ainda não existe
+  async function ensureCategories(path, defaults) {
+    const snap = await get(ref(db, path));
+    if(!snap.exists()) { for(const n of defaults) await push(ref(db, path), { name: n, default: true }); }
+  }
+  async function loadCategories() {
+    await ensureCategories('categories', DEFAULT_PRODUCT_CATEGORIES);
+    await ensureCategories('expenseCategories', DEFAULT_EXPENSE_CATEGORIES);
+    productCategories = (await loadList('categories')).sort((a, b) => a.name.localeCompare(b.name, 'pt'));
+    expenseCategories = (await loadList('expenseCategories')).sort((a, b) => a.name.localeCompare(b.name, 'pt'));
+  }
+
+  // ---------- Definições ----------
+  window.fecharModal = function() {
+    document.body.classList.remove('printing-report');
+    $('modalRoot').innerHTML = '';
+  };
+
+  window.atualizarDadosSistema = async function() {
+    toast('A sincronizar dados...');
+    await loadSettings();
+    await navigate(currentPage);
+    toast('Sistema atualizado!');
+  };
+
+  function applySettingsToUI(cfg) {
+    appSettings = { ...DEFAULT_SETTINGS, ...cfg };
+    const r = document.documentElement.style;
+    r.setProperty('--navy', appSettings.navyColor);
+    r.setProperty('--blue', appSettings.blueColor);
+    r.setProperty('--bg', appSettings.bgColor);
+    r.setProperty('--ink', appSettings.inkColor);
+    r.setProperty('--panel-bg', appSettings.panelBgColor);
+    r.setProperty('--th-bg', appSettings.thBgColor);
+    r.setProperty('--th-ink', appSettings.thInkColor);
+    r.setProperty('--line', appSettings.lineColor);
+
+    $('pageTitle').textContent = `${appSettings.companyName} — Sistema de Gestão`;
+    $('loginBrandName').textContent = appSettings.companyName;
+    $('loginBrandSubtitle').textContent = appSettings.companySubtitle;
+    $('topBrandHeader').textContent = appSettings.topHeaderSuffix
+      ? `${appSettings.companyName} — ${appSettings.topHeaderSuffix}`
+      : appSettings.companyName;
+  }
+
+  async function loadSettings() {
+    try {
+      const snap = await get(ref(db, 'settings'));
+      if(snap.exists()) {
+        applySettingsToUI(snap.val());
+      } else {
+        await set(ref(db, 'settings'), DEFAULT_SETTINGS);
+        applySettingsToUI(DEFAULT_SETTINGS);
+      }
+    } catch(e) {
+      applySettingsToUI(DEFAULT_SETTINGS);
+    }
+  }
+
+  async function initSystem() {
+    await loadSettings();
+    const adminSnap = await get(ref(db, 'users/admin'));
+    if(!adminSnap.exists()) {
+      const adminRec = {
+        username: 'admin',
+        name: 'Dono / Administrador',
+        role: 'Dono',
+        email: 'admin@modagest.co.mz',
+        phone: '+258 840000000',
+        status: 'ativo',
+        createdAt: new Date().toISOString()
+      };
+      await setPassword(adminRec, 'Admin@123');
+      await set(ref(db, 'users/admin'), adminRec);
+    }
+
+    // PERSISTÊNCIA DE SESSÃO AUTOMÁTICA APÓS REFRESH DO NAVEGADOR
+    const savedUser = localStorage.getItem('modagest_user');
+    if(savedUser) {
+      try {
+        currentUser = JSON.parse(savedUser);
+        const savedPage = localStorage.getItem('modagest_page');
+        enterApp(false, savedPage);
+      } catch(e) {
+        localStorage.removeItem('modagest_user');
+        localStorage.removeItem('modagest_page');
+      }
+    }
+  }
+  initSystem();
+
+  // LOGIN
+  $('loginForm').onsubmit = async e => {
+    e.preventDefault();
+    const u = $('loginUser').value.trim();
+    const p = $('loginPass').value;
+    const snap = await get(ref(db, 'users'));
+    if(!snap.exists()) return toast('Erro de ligação à base de dados.');
+
+    let foundUser = null;
+    const candidates = [];
+    snap.forEach(child => { candidates.push({ id: child.key, ...child.val() }); });
+    for(const usr of candidates) {
+      if((usr.username === u || usr.email === u) && await checkPassword(usr, p)) { foundUser = usr; break; }
+    }
+
+    if(!foundUser) {
+      $('loginMsg').innerHTML = '<div class="alert error">Utilizador ou palavra-passe incorretos.</div>';
+      return;
+    }
+    if(foundUser.status === 'pendente') {
+      $('loginMsg').innerHTML = '<div class="alert info">A sua conta está pendente de aprovação pelo Dono.</div>';
+      return;
+    }
+    if(foundUser.status === 'recusado') {
+      $('loginMsg').innerHTML = '<div class="alert error">O seu acesso foi recusado pelo administrador.</div>';
+      return;
+    }
+
+    if(!foundUser.passHash) {
+      // Converte conta antiga (texto simples) para hash e remove a palavra-passe da base de dados
+      const upd = await setPassword({}, p);
+      upd.pass = null;
+      await update(ref(db, `users/${foundUser.id}`), upd);
+    }
+    currentUser = sessionOf(foundUser);
+    localStorage.setItem('modagest_user', JSON.stringify(currentUser));
+    enterApp(true);
+  };
+
+  async function updatePendingBadge() {
+    if(!isDono()) return;
+    const snap = await get(ref(db, 'users'));
+    let pendingCount = 0;
+    if(snap.exists()) {
+      snap.forEach(c => { if(c.val().status === 'pendente') pendingCount++; });
+    }
+    $('navUsers').innerHTML = pendingCount > 0
+      ? `👥 Aprovar Caixas <span style="background:var(--orange);color:#fff;padding:2px 7px;border-radius:12px;font-size:11px;margin-left:4px">${pendingCount}</span>`
+      : `👥 Aprovar Caixas`;
+  }
+
+  async function enterApp(isNewLogin = true, savedPage = null) {
+    $('loginScreen').style.display = 'none';
+    $('app').style.display = 'block';
+    $('userLabel').textContent = `${currentUser.name} (${currentUser.role})`;
+
+    if(isDono()) {
+      ['navUsers','navSales','navSettings','navExpenses'].forEach(id => $(id).style.display = 'block');
+      await updatePendingBadge();
+      if(isNewLogin) navigate('dashboard');
+      else navigate(savedPage || 'pos');
+    } else {
+      ['navUsers','navSales','navSettings','navExpenses'].forEach(id => $(id).style.display = 'none');
+      navigate('pos');
+    }
+  }
+
+  $('logoutBtn').onclick = () => {
+    currentUser = null;
+    localStorage.removeItem('modagest_user');
+    localStorage.removeItem('modagest_page');
+    $('app').style.display = 'none';
+    $('loginScreen').style.display = 'grid';
+    $('loginForm').reset();
+    $('loginMsg').innerHTML = '';
+  };
+
+  document.querySelectorAll('#navMenu button').forEach(btn => {
+    btn.onclick = () => navigate(btn.dataset.page);
+  });
+
+  async function navigate(page) {
+    if(currentUser.role === 'Caixa' && page !== 'pos') {
+      return toast('Acesso restrito ao PDV para operadores de caixa.');
+    }
+    currentPage = page;
+    localStorage.setItem('modagest_page', page);
+    document.querySelectorAll('#navMenu button').forEach(b => b.classList.toggle('active', b.dataset.page === page));
+    try {
+      if(page === 'dashboard') await renderDashboard();
+      else if(page === 'pos') await renderPOS();
+      else if(page === 'products') await renderProducts();
+      else if(page === 'expenses') await renderExpenses();
+      else if(page === 'sales') await renderSalesHistory();
+      else if(page === 'users') await renderUsersManagement();
+      else if(page === 'settings') await renderSettings();
+    } catch(err) { toast('Erro ao carregar módulo: ' + err.message); }
+  }
+
+  function head(title, action='') { return `<div class="pagehead"><h1>${title}</h1>${action}</div>`; }
+
+  // DEFINIÇÕES E PERSONALIZAÇÃO
+  async function renderSettings() {
+    await loadSettings();
+    let html = head('Definições e Personalização do Sistema');
+    html += `
+    <form id="settingsForm">
+      <div class="panel">
+        <h3>1. Identidade da Empresa / Loja</h3>
+        <p class="muted" style="margin-top:-8px;margin-bottom:14px">Altere o nome da empresa caso mude de marca ou transfira o sistema para outra pessoa.</p>
+        <div class="formgrid">
+          <div><label>Nome da Empresa / Loja</label><input name="companyName" value="${esc(appSettings.companyName)}" required placeholder="Ex: Amigo de Qualidade"></div>
+          <div><label>Localização / Subtítulo do Topo</label><input name="topHeaderSuffix" value="${esc(appSettings.topHeaderSuffix)}" placeholder="Ex: Pemba - Moçambique"></div>
+          <div class="full"><label>Slogan / Descrição no Ecrã de Login</label><input name="companySubtitle" value="${esc(appSettings.companySubtitle)}" placeholder="Ex: Gestão Inteligente para Lojas"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>2. Cores do Sistema e Tabelas</h3>
+        <div class="formgrid">
+          <div><label>Cor Principal</label><input type="color" name="navyColor" value="${esc(appSettings.navyColor)}"></div>
+          <div><label>Cor dos Botões</label><input type="color" name="blueColor" value="${esc(appSettings.blueColor)}"></div>
+          <div><label>Cor do Texto</label><input type="color" name="inkColor" value="${esc(appSettings.inkColor)}"></div>
+          <div><label>Cor de Fundo Geral</label><input type="color" name="bgColor" value="${esc(appSettings.bgColor)}"></div>
+          <div><label>Cor de Fundo dos Painéis</label><input type="color" name="panelBgColor" value="${esc(appSettings.panelBgColor)}"></div>
+          <div><label>Cor das Linhas</label><input type="color" name="lineColor" value="${esc(appSettings.lineColor)}"></div>
+          <div><label>Cor Fundo Cabeçalho Tabela</label><input type="color" name="thBgColor" value="${esc(appSettings.thBgColor)}"></div>
+          <div><label>Cor Texto Cabeçalho Tabela</label><input type="color" name="thInkColor" value="${esc(appSettings.thInkColor)}"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>3. Dados de Acesso do Dono</h3>
+        <div class="formgrid">
+          <div><label>Nome do Dono</label><input name="ownerName" value="${esc(currentUser.name)}" required></div>
+          <div><label>Utilizador</label><input name="ownerUsername" value="${esc(currentUser.username)}" required></div>
+          <div><label>E-mail</label><input name="ownerEmail" type="email" value="${esc(currentUser.email || '')}" required></div>
+          <div><label>Nova palavra-passe</label><input name="ownerPass" type="password" placeholder="Deixe em branco para manter a atual" autocomplete="new-password"></div>
+        </div>
+      </div>
+      <button type="submit" class="success" style="padding:13px 24px;font-size:15px">Guardar Definições</button>
+    </form>
+    <div class="panel" style="border-color:var(--red);margin-top:20px">
+      <h3 style="color:var(--red)">Reiniciar padrão</h3>
+      <p class="muted">Apaga todas as vendas, relatórios, stock, compras, despesas, produtos e categorias. Mantém apenas os cadastros do Dono e dos Caixas. Antes de apagar, é descarregada uma cópia de segurança em ficheiro JSON.</p>
+      <button type="button" class="danger" onclick="resetPadrao()">⚠️ Reiniciar padrão</button>
+    </div>`;
+
+    $('contentArea').innerHTML = html;
+    const readCfg = f => ({
+      companyName: f.get('companyName') || appSettings.companyName,
+      topHeaderSuffix: f.get('topHeaderSuffix'),
+      companySubtitle: f.get('companySubtitle'),
+      navyColor: f.get('navyColor'),
+      blueColor: f.get('blueColor'),
+      inkColor: f.get('inkColor'),
+      bgColor: f.get('bgColor'),
+      panelBgColor: f.get('panelBgColor'),
+      lineColor: f.get('lineColor'),
+      thBgColor: f.get('thBgColor'),
+      thInkColor: f.get('thInkColor')
+    });
+    $('settingsForm').oninput = () => applySettingsToUI(readCfg(new FormData($('settingsForm'))));
+    $('settingsForm').onsubmit = async ev => {
+      ev.preventDefault();
+      const f = new FormData(ev.target);
+      const newCfg = readCfg(f);
+      if(f.get('ownerPass') && f.get('ownerPass').length < 6) return toast('A nova palavra-passe deve ter pelo menos 6 caracteres.');
+      newCfg.companyName = f.get('companyName').trim();
+      newCfg.topHeaderSuffix = f.get('topHeaderSuffix').trim();
+      newCfg.companySubtitle = f.get('companySubtitle').trim();
+      await set(ref(db, 'settings'), newCfg);
+      applySettingsToUI(newCfg);
+      const ownerUpdates = { name: f.get('ownerName').trim(), username: f.get('ownerUsername').trim(), email: f.get('ownerEmail').trim() };
+      if(f.get('ownerPass')) { await setPassword(ownerUpdates, f.get('ownerPass')); ownerUpdates.pass = null; }
+      await update(ref(db, `users/${currentUser.id}`), ownerUpdates);
+      currentUser = sessionOf({ ...currentUser, ...ownerUpdates });
+      localStorage.setItem('modagest_user', JSON.stringify(currentUser));
+      $('userLabel').textContent = `${currentUser.name} (${currentUser.role})`;
+      toast('Definições guardadas com sucesso!');
+    };
+  }
+
+  // ---------- REINICIAR PADRÃO (só Dono) ----------
+  const RESET_NODES = ['products','sales','purchases','expenses','categories','expenseCategories'];
+
+  // Cópia de segurança completa (descarregada como ficheiro JSON antes de apagar)
+  async function downloadBackup() {
+    const dados = {};
+    for(const n of ['users','settings', ...RESET_NODES]) {
+      const snap = await get(ref(db, n));
+      dados[n] = snap.exists() ? snap.val() : null;
+    }
+    dados._geradoEm = new Date().toISOString();
+    const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ModaGest_backup_${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+
+  // Contagem regressiva de 5 segundos com botão de cancelar. Resolve true se chegar a zero.
+  function countdownCancelable(seconds) {
+    return new Promise(resolve => {
+      let left = seconds, done = false;
+      $('modalRoot').innerHTML = overlay(`
+        <div class="panel" style="width:min(420px,100%);margin:0;text-align:center">
+          <h3 style="color:var(--red);margin-top:0">A reiniciar o sistema</h3>
+          <p>Todos os dados (vendas, stock, compras, despesas e relatórios) serão apagados em</p>
+          <div id="rsCount" style="font-size:48px;font-weight:800;color:var(--red);margin:10px 0">${left}</div>
+          <p class="muted">Mantêm-se apenas os cadastros do Dono e dos Caixas.</p>
+          <button type="button" class="secondary" id="rsCancel" style="width:100%;margin-top:10px">Cancelar</button>
+        </div>`);
+      const timer = setInterval(() => {
+        if(done) return;
+        left--;
+        if($('rsCount')) $('rsCount').textContent = Math.max(left, 0);
+        if(left <= 0) { done = true; clearInterval(timer); resolve(true); }
+      }, 1000);
+      $('rsCancel').onclick = () => {
+        if(done) return;
+        done = true; clearInterval(timer); resolve(false);
+      };
+    });
+  }
+
+  window.resetPadrao = async function() {
+    if(!isDono()) return;
+    // 1-2: pedido de confirmação e palavra-passe do Dono
+    if(!await confirmDono('Reiniciar o sistema do zero? Vai apagar TODAS as vendas, relatórios, stock, compras, despesas, produtos e categorias. Mantêm-se apenas os cadastros do Dono e dos Caixas.')) return;
+
+    // 3: cópia de segurança (se falhar, o reinício continua)
+    try { await downloadBackup(); toast('Cópia de segurança descarregada.'); }
+    catch(e) { toast('Não foi possível gerar a cópia de segurança. O reinício continua.'); }
+
+    // 4: contagem de 5 segundos, com possibilidade de cancelar
+    const confirmado = await countdownCancelable(5);
+    if(!confirmado) { fecharModal(); return toast('Reinício cancelado. Nenhum dado foi apagado.'); }
+
+    // 5: apagar e voltar ao estado inicial
+    try {
+      for(const n of RESET_NODES) await remove(ref(db, n));
+      productsCache = []; salesCache = []; purchasesCache = []; expensesCache = [];
+      productCategories = []; expenseCategories = []; cart = [];
+      await loadCategories();
+      fecharModal();
+      toast('Sistema reiniciado do zero.');
+      navigate('dashboard');
+    } catch(e) {
+      fecharModal();
+      toast('Erro ao reiniciar: ' + e.message);
+    }
+  };
+
+  // REGISTO DE CAIXA
+  window.showRegisterModal = function() {
+    $('modalRoot').innerHTML = overlay(`
+        <div class="panel" style="width:min(500px,100%);margin:0">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
+            <h3 style="margin:0">Registar Conta de Caixa</h3>
+            <button type="button" class="secondary" style="padding:6px 12px" onclick="fecharModal()">✕</button>
+          </div>
+          <form id="regForm">
+            <label>Nome Completo</label><input name="name" required placeholder="Ex: Maria José">
+            <label>E-mail</label><input name="email" type="email" required placeholder="maria@email.com">
+            <label>Contacto</label><input name="phone" required placeholder="+258 84...">
+            <label>Palavra-passe</label><input name="pass" type="password" required placeholder="Mínimo 6 caracteres">
+            <div style="display:flex;gap:10px;margin-top:18px">
+              <button type="button" class="secondary" style="flex:1" onclick="fecharModal()">Cancelar</button>
+              <button type="submit" class="success" style="flex:2">Submeter Pedido</button>
+            </div>
+          </form>
+        </div>`);
+    $('regForm').onsubmit = async ev => {
+      ev.preventDefault();
+      const f = new FormData(ev.target);
+      if(f.get('pass').length < 6) return toast('A palavra-passe deve ter pelo menos 6 caracteres.');
+      const regRec = await setPassword({
+        username: f.get('email').split('@')[0],
+        name: f.get('name').trim(),
+        email: f.get('email').trim(),
+        phone: f.get('phone').trim(),
+        role: 'Caixa',
+        status: 'pendente',
+        createdAt: new Date().toISOString()
+      }, f.get('pass'));
+      await push(ref(db, 'users'), regRec);
+      fecharModal();
+      toast('Registo efetuado! Aguarde a aprovação do Dono.');
+    };
+  };
+
+  // GESTÃO DE CAIXAS (DONO)
+  async function renderUsersManagement() {
+    const usersList = await loadList('users');
+    let html = head(`Cadastros e Aprovação de Caixas (${usersList.length})`);
+    html += `<div class="panel"><div style="overflow-x:auto"><table><thead><tr><th>Nome</th><th>E-mail</th><th>Estado</th><th>Ações</th></tr></thead><tbody>`;
+    usersList.forEach(u => {
+      html += `<tr><td><b>${esc(u.name)}</b></td><td>${esc(u.email)}</td><td><span class="badge-pill">${esc(u.status)}</span></td><td>`;
+      if(u.role !== 'Dono') {
+        if(u.status === 'pendente') html += `<button class="success" style="padding:4px 8px;font-size:11px" onclick="updateUserStatus('${u.id}','ativo')">Aprovar</button>`;
+        else html += `<button class="danger" style="padding:4px 8px;font-size:11px" onclick="updateUserStatus('${u.id}','pendente')">Suspender</button>`;
+      } else html += `<span class="muted">Admin</span>`;
+      html += `</td></tr>`;
+    });
+    html += `</tbody></table></div></div>`;
+    $('contentArea').innerHTML = html;
+  }
+
+  window.updateUserStatus = async function(id, st) {
+    await update(ref(db, `users/${id}`), { status: st });
+    toast('Estado atualizado!');
+    await renderUsersManagement();
+  };
+
+  // ---------- CATEGORIAS ----------
+  window.openCategoryManager = async function(kind) {
+    const path = kind === 'despesa' ? 'expenseCategories' : 'categories';
+    const list = (await loadList(path)).sort((a, b) => a.name.localeCompare(b.name, 'pt'));
+    $('modalRoot').innerHTML = overlay(`
+      <div class="panel" style="width:min(460px,100%);max-height:90vh;overflow:auto;margin:0">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h3 style="margin:0">${kind === 'despesa' ? 'Categorias de Despesas' : 'Categorias de Produtos'}</h3>
+          <button type="button" class="secondary" style="padding:6px 12px" onclick="fecharModal()">✕</button>
+        </div>
+        <table><tbody>
+          ${list.map(c => `<tr><td>${esc(c.name)}</td><td style="text-align:right">${isDono() ? `<button class="danger" style="padding:4px 8px;font-size:11px" onclick="removeCategory('${kind}','${c.id}')">Remover</button>` : ''}</td></tr>`).join('')}
+        </tbody></table>
+        ${isDono() ? `<form id="catForm" style="display:flex;gap:8px;margin-top:14px">
+          <input name="name" required placeholder="Nova categoria">
+          <button type="submit" class="success" style="white-space:nowrap">Adicionar</button>
+        </form>` : ''}
+      </div>`);
+    if($('catForm')) $('catForm').onsubmit = async ev => {
+      ev.preventDefault();
+      const name = new FormData(ev.target).get('name').trim();
+      if(!name) return;
+      const exists = list.some(c => c.name.toLowerCase() === name.toLowerCase());
+      if(exists) return toast('Essa categoria já existe.');
+      await push(ref(db, path), { name });
+      await loadCategories();
+      toast('Categoria adicionada.');
+      window.openCategoryManager(kind);
+    };
+  };
+
+  window.removeCategory = async function(kind, id) {
+    if(!isDono()) return;
+    if(!confirm('Remover esta categoria? Os registos antigos mantêm o nome.')) return;
+    await remove(ref(db, `${kind === 'despesa' ? 'expenseCategories' : 'categories'}/${id}`));
+    await loadCategories();
+    window.openCategoryManager(kind);
+  };
+
+  // ---------- PRODUTOS E STOCK ----------
+  function categorySelect(selected, list) {
+    const opts = list.map(c => c.name);
+    if(selected && !opts.includes(selected)) opts.unshift(selected);
+    return opts.map(n => `<option value="${esc(n)}" ${n === selected ? 'selected' : ''}>${esc(n)}</option>`).join('');
+  }
+
+  async function renderProducts() {
+    await loadProducts();
+    await loadCategories();
+    const actionBtn = isDono()
+      ? `<div style="display:flex;gap:8px"><button class="secondary" onclick="openCategoryManager('produto')">🏷️ Categorias</button><button onclick="openProductModal()">+ Novo Produto</button></div>`
+      : '';
+    let html = head(`Produtos e Stock (${productsCache.length})`, actionBtn);
+    html += `<div class="panel"><div style="overflow-x:auto"><table><thead><tr><th>Foto</th><th>Artigo</th><th>Categoria</th><th>Tamanho/Cor</th><th>Custo unit.</th><th>Preço Venda</th><th>Stock</th><th>Ações</th></tr></thead><tbody>`;
+
+    if(productsCache.length === 0) {
+      html += `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px">Nenhum produto registado.</td></tr>`;
+    } else {
+      productsCache.forEach(p => {
+        const imgSrc = (p.image && p.image.trim() !== '') ? p.image : '';
+        const img = imgSrc ? `<img src="${esc(imgSrc)}" class="product-img" onerror="imgFail(this)">` : `<div class="product-img" style="display:grid;place-items:center;font-size:9px;color:#888">Sem foto</div>`;
+        html += `<tr>
+          <td>${img}</td>
+          <td><b>${esc(p.name)}</b><br><small style="color:var(--muted)">Ref: ${esc(p.sku || 'N/A')}</small></td>
+          <td>${esc(p.category || 'Sem categoria')}</td>
+          <td>Tam: <b>${esc(p.size || 'Único')}</b> | Cor: <b>${esc(p.color || 'Geral')}</b></td>
+          <td>${money(unitCostOf(p))}<br><small class="muted">${esc(p.unit || 'un.')}</small></td>
+          <td><b>${money(p.price)}</b></td>
+          <td><span style="font-weight:700;color:${num(p.stock)<=STOCK_BAIXO?'var(--red)':'var(--green)'}">${num(p.stock)} un.</span></td>
+          <td>`;
+        if(isDono()) {
+          html += `<button class="success" style="padding:4px 8px;font-size:11px;margin-right:3px" onclick="openPurchaseModal('${p.id}')">+ Compra</button>
+                   <button class="secondary" style="padding:4px 8px;font-size:11px;margin-right:3px" onclick="openProductModal('${p.id}')">Editar</button>
+                   <button class="danger" style="padding:4px 8px;font-size:11px" onclick="deleteProduct('${p.id}')">Excluir</button>`;
+        } else {
+          html += `<span class="muted">-</span>`;
+        }
+        html += `</td></tr>`;
+      });
+    }
+    html += `</tbody></table></div></div>`;
+    $('contentArea').innerHTML = html;
+  }
+
+  // Cálculo de uma compra (lote / fardo / pacote)
+  function calcPurchase(fd) {
+    const packs = num(fd.get('packs'));
+    const upp = num(fd.get('upp'));
+    const totalUnits = packs * upp;
+    const invoice = num(fd.get('invoice'));
+    const discount = num(fd.get('discount'));
+    const other = num(fd.get('other'));
+    const net = invoice - discount + other;
+    return {
+      packs, upp, totalUnits, invoice, discount, other, net,
+      packType: fd.get('packType') || 'pacote',
+      unitCost: totalUnits > 0 ? net / totalUnits : 0
+    };
+  }
+
+  window.openPurchaseModal = function(id) {
+    const p = productsCache.find(x => x.id === id);
+    if(!p) return;
+    $('modalRoot').innerHTML = overlay(`
+      <div class="panel" style="width:min(560px,100%);max-height:92vh;overflow:auto;margin:0">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <h3 style="margin:0">Registar Compra / Entrada de Stock</h3>
+          <button type="button" class="secondary" style="padding:6px 12px" onclick="fecharModal()">✕</button>
+        </div>
+        <p class="muted">Produto: <b>${esc(p.name)}</b> &nbsp;|&nbsp; Stock atual: <b>${num(p.stock)} un.</b> &nbsp;|&nbsp; Custo unitário atual: <b>${money(unitCostOf(p))}</b></p>
+        <form id="purchaseForm" class="formgrid">
+          <div><label>Nº de embalagens</label><input name="packs" type="number" min="0" step="1" value="1" required></div>
+          <div><label>Tipo de embalagem</label><select name="packType">${UNIT_TYPES.map(u => `<option ${u === (p.unit || 'pacote') ? 'selected' : ''}>${u}</option>`).join('')}</select></div>
+          <div><label>Unidades por embalagem</label><input name="upp" type="number" min="1" step="1" value="${num(p.unitsPerPack) || 1}" required></div>
+          <div><label>Valor total da fatura (MT)</label><input name="invoice" type="number" min="0" step="0.01" value="0" required></div>
+          <div><label>Desconto na fatura (MT)</label><input name="discount" type="number" min="0" step="0.01" value="0"></div>
+          <div><label>Outros custos de aquisição (MT)</label><input name="other" type="number" min="0" step="0.01" value="0"></div>
+          <div class="full"><div id="purchasePreview" class="alert info" style="margin:12px 0 0"></div></div>
+          <div class="full" style="margin-top:14px;display:flex;gap:10px">
+            <button type="button" class="secondary" style="flex:1" onclick="fecharModal()">Cancelar</button>
+            <button type="submit" class="success" style="flex:2">Registar compra</button>
+          </div>
+        </form>
+      </div>`);
+
+    const form = $('purchaseForm');
+    const preview = () => {
+      const c = calcPurchase(new FormData(form));
+      $('purchasePreview').innerHTML = `
+        Total de unidades: <b>${c.totalUnits}</b> &nbsp;|&nbsp;
+        Custo líquido (fatura − desconto + outros): <b>${money(c.net)}</b><br>
+        Custo unitário desta compra: <b>${money(c.unitCost)}</b>
+        ${num(p.stock) > 0 ? `<br><small>O custo unitário do stock passa a ser a média ponderada entre o stock atual e esta compra.</small>` : ''}`;
+    };
+    form.oninput = preview;
+    preview();
+
+    form.onsubmit = async ev => {
+      ev.preventDefault();
+      if(isSaving) return;
+      const c = calcPurchase(new FormData(form));
+      if(c.totalUnits <= 0) return toast('Indique o nº de embalagens e as unidades por embalagem.');
+      if(c.net < 0) return toast('O desconto não pode ser maior que a fatura.');
+      isSaving = true;
+      try {
+        const oldStock = num(p.stock), oldCost = unitCostOf(p);
+        const newStock = oldStock + c.totalUnits;
+        // Custo médio ponderado: mantém o custo unitário do stock correto
+        const newCost = newStock > 0 ? r4((oldStock * oldCost + c.net) / newStock) : r4(c.unitCost);
+        const iso = new Date().toISOString();
+        await push(ref(db, 'purchases'), {
+          productId: p.id, productName: p.name,
+          packs: c.packs, packType: c.packType, unitsPerPack: c.upp, totalUnits: c.totalUnits,
+          invoiceTotal: r2(c.invoice), invoiceDiscount: r2(c.discount), otherCosts: r2(c.other),
+          netCost: r2(c.net), unitCost: r4(c.unitCost),
+          date: iso, user: currentUser.name
+        });
+        await update(ref(db, `products/${p.id}`), { stock: newStock, costUnit: newCost, cost: newCost, unitsPerPack: c.upp });
+        fecharModal();
+        toast(`Compra registada: +${c.totalUnits} un.`);
+        await renderProducts();
+      } finally { isSaving = false; }
+    };
+  };
+
+  window.openProductModal = function(id = null) {
+    const p = id ? productsCache.find(x => x.id === id) : { name: '', category: productCategories[0]?.name || '', size: 'M', color: 'Preto', unit: 'un.', unitsPerPack: 1, cost: 0, costUnit: 0, price: 0, stock: 0, sku: '', image: '' };
+    tempImageData = p.image || '';
+    const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Único', '36', '38', '40', '42', '44'];
+    const sizeOpts = sizes.map(s => `<option value="${s}" ${p.size===s?'selected':''}>${s}</option>`).join('');
+
+    $('modalRoot').innerHTML = overlay(`
+        <div class="panel" style="width:min(540px,100%);max-height:92vh;overflow:auto;margin:0">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <h3 style="margin:0">${id?'Editar Produto':'Novo Produto'}</h3>
+            <button type="button" class="secondary" style="padding:6px 12px" onclick="fecharModal()">✕</button>
+          </div>
+          <form id="prodForm" class="formgrid">
+            <div class="full"><label>Nome do produto</label><input name="name" value="${esc(p.name)}" required></div>
+            <div><label>Categoria</label><select name="category">${categorySelect(p.category, productCategories)}</select></div>
+            <div><label>Unidade de venda</label><select name="unit">${UNIT_TYPES.map(u => `<option ${u===(p.unit||'un.')?'selected':''}>${u}</option>`).join('')}</select></div>
+            <div><label>Tamanho</label><select name="size">${sizeOpts}</select></div>
+            <div><label>Cor</label><input name="color" value="${esc(p.color)}"></div>
+            <div><label>Referência / SKU</label><input name="sku" value="${esc(p.sku)}"></div>
+            <div><label>Unidades por embalagem</label><input name="unitsPerPack" type="number" min="1" step="1" value="${num(p.unitsPerPack) || 1}"></div>
+            <div><label>Custo unitário (MT)</label><input name="cost" type="number" step="0.0001" value="${unitCostOf(p)}" required></div>
+            <div><label>Preço Venda (MT)</label><input name="price" type="number" step="0.01" value="${p.price}" required></div>
+            <div class="full"><label>Stock (unidades)</label><input name="stock" type="number" value="${num(p.stock)}" required>
+              <small class="muted">Para dar entrada de mercadoria com custo correto use "+ Compra" na lista de produtos.</small></div>
+            <div class="full">
+              <label>Fotografia</label>
+              <input type="file" id="prodImgInput" accept="image/*" style="display:none" onchange="handleImageSelect(this)">
+              <div class="upload-box" onclick="document.getElementById('prodImgInput').click()"><div id="uploadBoxContent"></div></div>
+            </div>
+            <div class="full" style="margin-top:16px;display:flex;gap:10px">
+              <button type="button" class="secondary" style="flex:1" onclick="fecharModal()">Cancelar</button>
+              <button type="submit" class="success" style="flex:2">Guardar</button>
+            </div>
+          </form>
+        </div>`);
+    updateUploadBoxUI();
+    $('prodForm').onsubmit = async ev => {
+      ev.preventDefault();
+      if(isUploadingImage) return toast('Aguarde o envio da foto terminar...');
+      const f = new FormData(ev.target);
+      const cost = r4(f.get('cost'));
+      const data = {
+        name: f.get('name').trim(),
+        category: f.get('category'),
+        sku: f.get('sku').trim(),
+        unit: f.get('unit'),
+        size: f.get('size'),
+        color: f.get('color').trim(),
+        unitsPerPack: num(f.get('unitsPerPack')) || 1,
+        cost, costUnit: cost,
+        price: num(f.get('price')),
+        stock: num(f.get('stock')),
+        image: tempImageData || '',
+        createdAt: p.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      if(id) await update(ref(db, `products/${id}`), data);
+      else await push(ref(db, 'products'), data);
+      fecharModal();
+      toast('Produto guardado!');
+      await renderProducts();
+    };
+  };
+
+  window.deleteProduct = async function(id) {
+    if(!isDono()) return;
+    if(confirm('Excluir este produto? As vendas e compras antigas mantêm o histórico.')) {
+      await remove(ref(db, `products/${id}`));
+      toast('Produto removido.');
+      await renderProducts();
+    }
+  };
+
+  // Upload de imagem (Cloudinary, com plano B na base de dados)
+  async function uploadPhoto(file) {
+    let blob;
+    try { blob = await compressImage(file, 900, 0.8); } catch(e) { blob = file; }
+    try {
+      const fd = new FormData();
+      fd.append('file', blob);
+      fd.append('upload_preset', UPLOAD_PRESET);
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: fd });
+      const data = await res.json();
+      if(data.secure_url) return data.secure_url;
+      throw new Error((data.error && data.error.message) || 'Resposta inválida');
+    } catch(e) {
+      console.error('Cloudinary falhou:', e);
+      try {
+        return await blobToDataURL(await compressImage(file, 360, 0.6));
+      } catch(e2) {
+        return '';
+      }
+    }
+  }
+
+  window.handleImageSelect = async function(input) {
+    const file = input.files[0];
+    if(!file) return;
+    const box = $('uploadBoxContent');
+    if(box) box.innerHTML = `<div style="padding:15px;color:var(--navy);font-weight:600">A enviar foto para a nuvem...</div>`;
+    isUploadingImage = true;
+    tempImageData = await uploadPhoto(file);
+    if(!tempImageData) toast('Erro ao processar a imagem.');
+    else toast('Foto pronta.');
+    isUploadingImage = false;
+    updateUploadBoxUI();
+    input.value = '';
+  };
+
+  function compressImage(file, maxSize, quality) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+        const c = document.createElement('canvas');
+        c.width = Math.round(img.width * scale);
+        c.height = Math.round(img.height * scale);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        c.toBlob(b => b ? resolve(b) : reject(new Error('compress')), 'image/jpeg', quality);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('load')); };
+      img.src = url;
+    });
+  }
+
+  function blobToDataURL(blob) {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result);
+      r.onerror = reject;
+      r.readAsDataURL(blob);
+    });
+  }
+
+  window.imgFail = function(el) {
+    el.onerror = null;
+    const d = document.createElement('div');
+    d.className = 'noimg-box ' + (el.className || '');
+    d.textContent = 'Sem foto';
+    el.replaceWith(d);
+  };
+
+  window.clearSelectedImage = function(ev) {
+    if(ev) ev.stopPropagation();
+    tempImageData = '';
+    const inp = $('prodImgInput');
+    if(inp) inp.value = '';
+    updateUploadBoxUI();
+  };
+
+  function updateUploadBoxUI() {
+    const box = $('uploadBoxContent');
+    if(!box) return;
+    if(tempImageData) {
+      box.innerHTML = `
+        <div class="preview-wrap">
+          <img src="${tempImageData}" class="preview-img" alt="Pré-visualização">
+          <div style="margin-top:10px;display:flex;gap:8px;justify-content:center">
+            <span class="upload-badge">Foto na Nuvem</span>
+            <button type="button" class="danger" style="padding:4px 10px;font-size:12px" onclick="clearSelectedImage(event)">Remover</button>
+          </div>
+        </div>`;
+    } else {
+      box.innerHTML = `
+        <div class="upload-title">Adicionar imagem</div>
+        <div class="upload-sub">Escolher fotografia da galeria ou computador</div>
+        <span class="upload-badge">Cloudinary Ativo</span>`;
+    }
+  }
+
+  // ---------- CAIXA / PDV ----------
+  async function renderPOS() {
+    await loadProducts();
+    let html = head(`Caixa / PDV (${productsCache.length} artigos)`);
+    html += `
+    <div class="pos-layout">
+      <div>
+        <div class="panel" style="margin-bottom:12px;padding:12px"><input id="posSearch" placeholder="Pesquisar artigo..." oninput="filterPOSProducts(this.value)"></div>
+        <div class="pos-catalog" id="posCatalogGrid">${renderPOSGrid(productsCache)}</div>
+      </div>
+      <div class="panel" style="display:flex;flex-direction:column;justify-content:space-between;margin:0">
+        <div>
+          <h3>Carrinho</h3>
+          <div id="cartItemsList" style="max-height:26vh;overflow:auto;margin-bottom:10px"><p class="muted" style="text-align:center;padding:20px">Carrinho vazio.</p></div>
+        </div>
+        <div>
+          <hr style="border:0;border-top:1px solid var(--line);margin:10px 0">
+          <div style="margin-bottom:10px">
+            <label style="font-size:12px;margin-bottom:4px">Pagamento</label>
+            <div class="pay-methods">
+              <div class="pay-btn ${selectedPayMethod==='Dinheiro'?'active':''}" onclick="setPayMethod('Dinheiro')">Dinheiro</div>
+              <div class="pay-btn ${selectedPayMethod==='M-Pesa'?'active':''}" onclick="setPayMethod('M-Pesa')">M-Pesa</div>
+              <div class="pay-btn ${selectedPayMethod==='e-Mola'?'active':''}" onclick="setPayMethod('e-Mola')">e-Mola</div>
+              <div class="pay-btn ${selectedPayMethod==='mKesh'?'active':''}" onclick="setPayMethod('mKesh')">mKesh</div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-size:16px;font-weight:700">Total:</span>
+            <span id="cartGrandTotal" style="font-size:22px;font-weight:800;color:var(--navy)">0,00 MT</span>
+          </div>
+          <div id="trocoSection" class="troco-box" style="display:${selectedPayMethod==='Dinheiro'?'block':'none'}">
+            <label style="margin:0 0 5px;font-size:12px">Valor Recebido (MT)</label>
+            <input type="number" id="cashReceived" step="0.01" placeholder="1000" oninput="calcularTroco()">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+              <span style="font-size:13px;font-weight:600;color:var(--muted)">Troco:</span>
+              <span id="trocoDisplay" style="font-size:17px;font-weight:800;color:var(--green)">0,00 MT</span>
+            </div>
+          </div>
+          <button class="success" style="width:100%;padding:14px;font-size:15px;margin-top:6px" onclick="checkoutSale()">FINALIZAR VENDA</button>
+        </div>
+      </div>
+    </div>`;
+    $('contentArea').innerHTML = html;
+    renderCartUI();
+  }
+
+  function renderPOSGrid(list) {
+    if(list.length === 0) return `<div class="muted" style="grid-column:1/-1;text-align:center;padding:30px">Nenhum produto encontrado.</div>`;
+    return list.map(p => {
+      const imgSrc = (p.image && p.image.trim() !== '') ? p.image : '';
+      const img = imgSrc ? `<img src="${esc(imgSrc)}" onerror="imgFail(this)">` : `<div style="width:100%;height:110px;background:#eef4fc;display:grid;place-items:center;border-radius:6px;margin-bottom:8px;color:var(--muted);font-size:10px">Sem foto</div>`;
+      return `
+        <div class="pos-tile" onclick="addToCart('${p.id}')">
+          <div>
+            ${img}
+            <div style="font-weight:700;font-size:13px;margin-bottom:2px">${esc(p.name)}</div>
+            <div style="font-size:11px;color:var(--muted)">Tam: ${esc(p.size)} | Cor: ${esc(p.color)}</div>
+          </div>
+          <div style="margin-top:8px">
+            <div style="font-weight:800;color:var(--blue);font-size:14px">${money(p.price)}</div>
+            <div style="font-size:10px;color:${num(p.stock)<=STOCK_BAIXO?'var(--red)':'var(--muted)'}">Stock: ${num(p.stock)} un.</div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  window.filterPOSProducts = function(q) {
+    q = q.toLowerCase();
+    const f = productsCache.filter(p => p.name.toLowerCase().includes(q) || (p.sku && p.sku.toLowerCase().includes(q)));
+    $('posCatalogGrid').innerHTML = renderPOSGrid(f);
+  };
+
+  window.addToCart = function(id) {
+    const p = productsCache.find(x => x.id === id);
+    if(!p || num(p.stock) <= 0) return toast('Artigo esgotado!');
+    const ex = cart.find(x => x.id === id);
+    if(ex) {
+      if(ex.qty >= num(p.stock)) return toast('Stock máximo atingido!');
+      ex.qty++;
+    } else {
+      cart.push({ id: p.id, name: p.name, category: p.category || 'Sem categoria', price: num(p.price), size: p.size, color: p.color, qty: 1, maxStock: num(p.stock) });
+    }
+    renderCartUI();
+  };
+
+  window.updateCartQty = function(id, d) {
+    const item = cart.find(x => x.id === id);
+    if(!item) return;
+    item.qty += d;
+    if(item.qty <= 0) cart = cart.filter(x => x.id !== id);
+    else if(item.qty > item.maxStock) item.qty = item.maxStock;
+    renderCartUI();
+  };
+
+  window.setPayMethod = function(m) {
+    selectedPayMethod = m;
+    document.querySelectorAll('.pay-btn').forEach(b => b.classList.toggle('active', b.textContent.trim() === m));
+    const box = $('trocoSection');
+    if(box) {
+      box.style.display = m === 'Dinheiro' ? 'block' : 'none';
+      if(m === 'Dinheiro') calcularTroco();
+    }
+  };
+
+  window.calcularTroco = function() {
+    const total = sumBy(cart, x => x.price * x.qty);
+    const rec = Number($('cashReceived')?.value) || 0;
+    const disp = $('trocoDisplay');
+    if(!disp) return;
+    if(rec === 0) { disp.textContent = money(0); disp.style.color = 'var(--muted)'; return; }
+    const diff = rec - total;
+    if(diff < 0) { disp.textContent = `Falta ${money(Math.abs(diff))}`; disp.style.color = 'var(--red)'; }
+    else { disp.textContent = money(diff); disp.style.color = 'var(--green)'; }
+  };
+
+  function renderCartUI() {
+    const list = $('cartItemsList'), tot = $('cartGrandTotal');
+    if(!list) return;
+    if(cart.length === 0) { list.innerHTML = `<p class="muted" style="text-align:center;padding:20px">Carrinho vazio.</p>`; tot.textContent = money(0); calcularTroco(); return; }
+    list.innerHTML = cart.map(i => `
+        <div class="cart-item">
+          <div>
+            <b>${esc(i.name)}</b><br><small style="color:var(--muted)">Tam: ${esc(i.size)} | Cor: ${esc(i.color)}</small><br>
+            <span style="font-weight:700;color:var(--blue)">${money(i.price)}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <button class="secondary" style="padding:2px 8px" onclick="updateCartQty('${i.id}',-1)">-</button>
+            <span style="font-weight:700;width:20px;text-align:center">${i.qty}</span>
+            <button class="secondary" style="padding:2px 8px" onclick="updateCartQty('${i.id}',1)">+</button>
+          </div>
+        </div>`).join('');
+    tot.textContent = money(sumBy(cart, i => i.price * i.qty));
+    calcularTroco();
+  }
+
+  // Venda: regista o custo unitário de cada artigo no momento da venda (CMV exato)
+  window.checkoutSale = async function() {
+    if(cart.length === 0) return toast('O carrinho está vazio.');
+    if(isSaving) return;
+    const total = sumBy(cart, x => x.price * x.qty);
+    let rec = 0, troco = 0;
+    if(selectedPayMethod === 'Dinheiro') {
+      rec = Number($('cashReceived')?.value) || 0;
+      if(rec > 0 && rec < total) return toast('Valor recebido inferior ao total!');
+      troco = rec >= total ? rec - total : 0;
+    }
+    isSaving = true;
+    try {
+      await loadProducts();
+      const items = cart.map(i => {
+        const p = productsCache.find(x => x.id === i.id);
+        return { ...i, unitCost: p ? r4(unitCostOf(p)) : 0 };
+      });
+      const totalCost = r2(sumBy(items, i => i.unitCost * i.qty));
+      const saleData = {
+        items, total: r2(total), totalCost, profit: r2(total - totalCost),
+        paymentMethod: selectedPayMethod, cashReceived: rec, changeGiven: troco,
+        cashier: currentUser.name, date: new Date().toISOString()
+      };
+      const refRes = await push(ref(db, 'sales'), saleData);
+      for(const i of items) {
+        const p = productsCache.find(x => x.id === i.id);
+        if(p) await update(ref(db, `products/${i.id}`), { stock: num(p.stock) - i.qty });
+      }
+      cart = [];
+      await renderPOS();
+      showReceiptModal({ id: refRes.key, ...saleData });
+    } finally { isSaving = false; }
+  };
+
+  window.showReceiptModal = function(sale) {
+    const dateStr = new Date(sale.date).toLocaleString('pt-MZ');
+    const itemsHtml = (sale.items || []).map(i => `<div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:13px"><div>${i.qty}x ${esc(i.name)} (${esc(i.size)}, ${esc(i.color)})</div><div style="font-weight:600">${money(i.price * i.qty)}</div></div>`).join('');
+    const payDet = sale.paymentMethod === 'Dinheiro' ? `<div style="display:flex;justify-content:space-between;margin-top:4px"><span>Recebido:</span> <span>${money(sale.cashReceived)}</span></div><div style="display:flex;justify-content:space-between;margin-top:4px"><span>Troco:</span> <span style="font-weight:700">${money(sale.changeGiven)}</span></div>` : '';
+
+    $('modalRoot').innerHTML = `
+      <div style="position:fixed;inset:0;background:rgba(0,0,0,0.6);display:grid;place-items:center;padding:15px;z-index:99">
+        <div id="printReceiptModal" style="background:#fff;width:min(380px,100%);padding:25px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.2);color:#1c2733">
+          <div style="text-align:center;margin-bottom:15px">
+            <h2 style="margin:0;font-size:20px;font-weight:800;text-transform:uppercase">${esc(appSettings.companyName)}</h2>
+            <div style="font-size:12px;color:#667789;margin-top:2px">${esc(appSettings.topHeaderSuffix)}</div>
+            <div style="font-size:11px;color:#667789;margin-top:6px">Data: ${dateStr}</div>
+            <div style="font-size:11px;color:#667789">Operador: ${esc(sale.cashier)}</div>
+          </div>
+          <hr style="border:0;border-top:1px dashed #cbd5df;margin:12px 0">
+          <div style="margin-bottom:12px">${itemsHtml}</div>
+          <hr style="border:0;border-top:1px dashed #cbd5df;margin:12px 0">
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>Método:</span><b>${esc(sale.paymentMethod)}</b></div>
+          ${payDet}
+          <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:800;margin-top:10px;padding-top:8px;border-top:1px solid #1c2733"><span>TOTAL:</span><span>${money(sale.total)}</span></div>
+          <div style="text-align:center;margin-top:20px;font-size:11px;color:#667789">Obrigado pela preferência!<br>Volte sempre.</div>
+          <div class="no-print" style="margin-top:20px;display:flex;gap:10px">
+            <button type="button" class="secondary" style="flex:1;padding:10px" onclick="fecharModal()">Fechar</button>
+            <button type="button" class="success" style="flex:1;padding:10px" onclick="window.print()">Imprimir</button>
+          </div>
+        </div>
+      </div>`;
+  };
+
+  window.reprintSale = function(id) {
+    const s = salesCache.find(x => x.id === id);
+    if(s) showReceiptModal(s);
+  };
+
+  // ---------- DESPESAS ----------
+  async function renderExpenses() {
+    await loadExpenses();
+    await loadCategories();
+    const t = expPeriod;
+    const inList = expensesCache.filter(e => inPeriod(e.date, t));
+    const list = inList.filter(e =>
+      (!expCat || e.category === expCat) &&
+      (!expSearch || `${e.title || ''} ${e.description || ''}`.toLowerCase().includes(expSearch.toLowerCase())));
+    const opex = sumBy(inList.filter(e => e.type !== 'aquisicao'), e => e.amount);
+    const aq = sumBy(inList.filter(e => e.type === 'aquisicao'), e => e.amount);
+
+    let html = head('Despesas da Loja', `<div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="secondary" onclick="openCategoryManager('despesa')">🏷️ Categorias</button>
+      <button class="secondary" onclick="printExpenses(expPeriod)">🖨️ Imprimir</button>
+      <button class="warning" onclick="savePDF('despesas', expPeriod)">💾 Salvar PDF</button>
+      <button onclick="openExpenseModal()">+ Nova Despesa</button></div>`);
+
+    html += `
+    <div class="panel" style="padding:15px;margin-bottom:15px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">${periodButtons(t, 'setExpPeriod')}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <select style="width:auto" onchange="setExpCat(this.value)">
+          <option value="">Todas as categorias</option>
+          ${expenseCategories.map(c => `<option value="${esc(c.name)}" ${c.name===expCat?'selected':''}>${esc(c.name)}</option>`).join('')}
+        </select>
+        <input style="width:200px" placeholder="Pesquisar..." value="${esc(expSearch)}" onchange="setExpSearch(this.value)">
+      </div>
+    </div>
+    <div class="dash-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+      <div class="dash-card"><div class="muted">Despesas operacionais (período)</div><div class="dash-big" style="color:var(--red)">${money(opex)}</div><div class="dash-legend">Entram no cálculo do Lucro Líquido.</div></div>
+      <div class="dash-card"><div class="muted">Despesas de aquisição (período)</div><div class="dash-big" style="color:var(--muted)">${money(aq)}</div><div class="dash-legend">Não entram nos totais: a compra de stock já é contada em "+ Compra", para evitar dupla contagem.</div></div>
+    </div>`;
+
+    html += `<div class="panel"><div style="overflow-x:auto"><table>
+      <thead><tr><th>Data</th><th>Título</th><th>Categoria</th><th>Tipo</th><th style="text-align:right">Valor</th><th>Responsável</th><th>Comprovativo</th><th>Ações</th></tr></thead><tbody>`;
+    if(list.length === 0) {
+      html += `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px">Nenhuma despesa neste período.</td></tr>`;
+    } else {
+      list.forEach(e => {
+        html += `<tr>
+          <td><small>${new Date(e.date).toLocaleDateString('pt-MZ')}</small></td>
+          <td><b>${esc(e.title)}</b>${e.description ? `<br><small class="muted">${esc(e.description)}</small>` : ''}</td>
+          <td>${esc(e.category)}</td>
+          <td><span class="tag" style="background:#eef4fc;color:#1d4ed8">${esc(EXPENSE_TYPES[e.type] || e.type)}</span></td>
+          <td style="text-align:right"><b>${money(e.amount)}</b></td>
+          <td>${esc(e.responsavel || '')}</td>
+          <td>${e.photo ? `<img src="${esc(e.photo)}" style="width:44px;height:44px;object-fit:cover;border-radius:6px" onerror="imgFail(this)">` : '<span class="muted">—</span>'}</td>
+          <td style="white-space:nowrap">
+            ${isDono() ? `<button class="secondary" style="padding:4px 8px;font-size:11px;margin-right:3px" onclick="openExpenseModal('${e.id}')">Editar</button>
+            <button class="danger" style="padding:4px 8px;font-size:11px" onclick="deleteExpense('${e.id}')">Eliminar</button>` : '<span class="muted">-</span>'}
+          </td></tr>`;
+      });
+    }
+    html += `</tbody></table></div></div>`;
+    $('contentArea').innerHTML = html;
+  }
+
+  window.setExpPeriod = async function(t) { expPeriod = t; await renderExpenses(); };
+  window.setExpCat = async function(c) { expCat = c; await renderExpenses(); };
+  window.setExpSearch = async function(s) { expSearch = s; await renderExpenses(); };
+
+  window.openExpenseModal = function(id = null) {
+    const e = id ? expensesCache.find(x => x.id === id) : null;
+    expPhoto = e?.photo || '';
+    const dateVal = e ? new Date(e.date).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10);
+    $('modalRoot').innerHTML = overlay(`
+        <div class="panel" style="width:min(540px,100%);max-height:92vh;overflow:auto;margin:0">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <h3 style="margin:0">${e ? 'Editar Despesa' : 'Nova Despesa'}</h3>
+            <button type="button" class="secondary" style="padding:6px 12px" onclick="fecharModal()">✕</button>
+          </div>
+          <form id="expForm" class="formgrid">
+            <div class="full"><label>Título</label><input name="title" required value="${esc(e?.title || '')}" placeholder="Ex: Chapa para o depósito"></div>
+            <div><label>Categoria</label><select name="category">${categorySelect(e?.category, expenseCategories)}</select></div>
+            <div><label>Tipo</label><select name="type">${Object.entries(EXPENSE_TYPES).map(([k, v]) => `<option value="${k}" ${(e?.type || 'operacional') === k ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
+            <div><label>Valor (MT)</label><input name="amount" type="number" min="0" step="0.01" required value="${e ? num(e.amount) : ''}"></div>
+            <div><label>Data</label><input name="date" type="date" required value="${dateVal}"></div>
+            <div class="full"><label>Descrição / observações</label><textarea name="description" rows="2">${esc(e?.description || '')}</textarea></div>
+            <div class="full">
+              <label>Comprovativo (opcional)</label>
+              <input type="file" id="expImgInput" accept="image/*" style="display:none" onchange="handleExpensePhoto(this)">
+              <div class="upload-box" onclick="document.getElementById('expImgInput').click()"><div id="expPhotoBox"></div></div>
+            </div>
+            <div class="full" style="margin-top:16px;display:flex;gap:10px">
+              <button type="button" class="secondary" style="flex:1" onclick="fecharModal()">Cancelar</button>
+              <button type="submit" class="success" style="flex:2">Guardar</button>
+            </div>
+          </form>
+        </div>`);
+    updateExpPhotoBox();
+    $('expForm').onsubmit = async ev => {
+      ev.preventDefault();
+      if(isUploadingExpense) return toast('Aguarde o envio do comprovativo...');
+      if(isSaving) return;
+      const f = new FormData(ev.target);
+      const amount = r2(f.get('amount'));
+      if(amount < 0) return toast('O valor não pode ser negativo.');
+      isSaving = true;
+      try {
+        const iso = new Date(f.get('date') + 'T12:00:00').toISOString();
+        const data = {
+          title: f.get('title').trim(),
+          category: f.get('category'),
+          type: f.get('type'),
+          amount, date: iso,
+          description: f.get('description').trim(),
+          responsavel: currentUser.name,
+          photo: expPhoto || '',
+          updatedAt: new Date().toISOString()
+        };
+        if(e) await update(ref(db, `expenses/${e.id}`), data);
+        else { data.createdAt = new Date().toISOString(); await push(ref(db, 'expenses'), data); }
+        fecharModal();
+        toast('Despesa guardada!');
+        await renderExpenses();
+      } finally { isSaving = false; }
+    };
+  };
+
+  function updateExpPhotoBox() {
+    const box = $('expPhotoBox');
+    if(!box) return;
+    if(expPhoto) {
+      box.innerHTML = `<div class="preview-wrap"><img src="${esc(expPhoto)}" class="preview-img" alt="Comprovativo" onerror="imgFail(this)">
+        <div style="margin-top:10px"><button type="button" class="danger" style="padding:4px 10px;font-size:12px" onclick="clearExpensePhoto(event)">Remover</button></div></div>`;
+    } else {
+      box.innerHTML = `<div class="upload-title">Adicionar comprovativo</div><div class="upload-sub">Foto do recibo ou comprovativo</div>`;
+    }
+  }
+
+  window.handleExpensePhoto = async function(input) {
+    const file = input.files[0];
+    if(!file) return;
+    isUploadingExpense = true;
+    $('expPhotoBox').innerHTML = `<div style="padding:15px;color:var(--navy);font-weight:600">A enviar comprovativo...</div>`;
+    expPhoto = await uploadPhoto(file);
+    isUploadingExpense = false;
+    updateExpPhotoBox();
+    input.value = '';
+  };
+
+  window.clearExpensePhoto = function(ev) {
+    if(ev) ev.stopPropagation();
+    expPhoto = '';
+    updateExpPhotoBox();
+  };
+
+  window.deleteExpense = async function(id) {
+    if(!isDono()) return;
+    if(!await confirmDono('Eliminar esta despesa definitivamente?')) return;
+    await remove(ref(db, `expenses/${id}`));
+    toast('Despesa eliminada.');
+    await renderExpenses();
+  };
+
+  // ---------- HISTÓRICO, ESTORNO E ARQUIVO ----------
+  window.estornarVenda = async function(id) {
+    if(!isDono()) return;
+    if(!await confirmDono('Estornar esta venda? O stock será devolvido e a venda deixa de contar nos totais. O registo fica guardado.')) return;
+    await loadProducts();
+    await loadSales();
+    const s = salesCache.find(x => x.id === id);
+    if(!s || s.estornada) return;
+    for(const i of (s.items || [])) {
+      const p = productsCache.find(x => x.id === i.id);
+      if(p) await update(ref(db, `products/${p.id}`), { stock: num(p.stock) + num(i.qty) });
+    }
+    await update(ref(db, `sales/${id}`), { estornada: true, estornadaEm: new Date().toISOString(), estornadaPor: currentUser.name });
+    toast('Venda estornada e stock devolvido.');
+    await renderSalesHistory();
+  };
+
+  window.arquivarPeriodo = async function() {
+    if(!isDono()) return;
+    const list = filterSalesByPeriod(salesCache, currentReportFilter);
+    if(list.length === 0) return toast('Não há vendas ativas neste período para arquivar.');
+    if(!await confirmDono(`Arquivar ${list.length} venda(s) deste período? Ficam guardadas, mas saem dos totais e relatórios.`)) return;
+    const iso = new Date().toISOString();
+    for(const s of list) await update(ref(db, `sales/${s.id}`), { archived: true, archivedAt: iso, archivedBy: currentUser.name });
+    toast(`${list.length} venda(s) arquivada(s).`);
+    await renderSalesHistory();
+  };
+
+  window.desarquivarVenda = async function(id) {
+    if(!isDono()) return;
+    await update(ref(db, `sales/${id}`), { archived: false, archivedAt: null });
+    toast('Venda desarquivada.');
+    await renderSalesHistory();
+  };
+
+  window.changeReportFilter = async function(filterType) {
+    currentReportFilter = filterType;
+    await renderSalesHistory();
+  };
+  window.setHistoryTab = async function(t) { historyTab = t; await renderSalesHistory(); };
+  window.setHistorySearch = async function(s) { historySearch = s; await renderSalesHistory(); };
+  window.toggleArchived = async function(v) { showArchived = !!v; await renderSalesHistory(); };
+
+  async function renderSalesHistory() {
+    await loadSales();
+    await loadPurchases();
+    const t = currentReportFilter;
+    const q = historySearch.trim().toLowerCase();
+
+    let html = head('Histórico de Vendas, Compras e Fecho de Caixa');
+    html += `
+    <div class="panel" style="padding:15px;margin-bottom:15px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="${historyTab==='vendas'?'':'secondary'}" style="padding:7px 14px;font-size:13px" onclick="setHistoryTab('vendas')">🧾 Vendas</button>
+        <button class="${historyTab==='compras'?'':'secondary'}" style="padding:7px 14px;font-size:13px" onclick="setHistoryTab('compras')">📦 Compras de stock</button>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">${periodButtons(t, 'changeReportFilter')}</div>
+    </div>`;
+
+    if(historyTab === 'vendas') {
+      const list = filterSalesByPeriod(salesCache, t, { includeArchived: showArchived, includeVoided: true })
+        .filter(s => !q || (s.items || []).some(i => (i.name || '').toLowerCase().includes(q)));
+      const S = summarizeSales(list);
+
+      html += `
+      <div class="panel" style="padding:15px;margin-bottom:15px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <input style="width:240px" placeholder="Pesquisar por produto..." value="${esc(historySearch)}" onchange="setHistorySearch(this.value)">
+          <label style="margin:0;display:flex;gap:6px;align-items:center"><input type="checkbox" ${showArchived?'checked':''} onchange="toggleArchived(this.checked)"> Mostrar arquivadas</label>
+        </div>
+        ${isDono() ? `<button class="danger" onclick="arquivarPeriodo()">📦 Arquivar período</button>` : ''}
+      </div>
+      <div class="panel" style="padding:15px;margin-bottom:15px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div style="font-weight:700;color:var(--navy)">🖨️ Imprimir (2 vias):</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="success" style="padding:7px 14px;font-size:13px" onclick="printReport('${t}')">Este período</button>
+          ${['diario','semanal','mensal','anual','tudo'].map(x => `<button class="secondary" style="padding:7px 14px;font-size:13px" onclick="printReport('${x}')">${PERIOD_LABELS[x].slice(3)}</button>`).join('')}
+        </div>
+      </div>
+      <div class="panel" style="padding:15px;margin-bottom:15px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div style="font-weight:700;color:var(--navy)">💾 Salvar PDF (para partilhar):</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="warning" style="padding:7px 14px;font-size:13px" onclick="savePDF('vendas','${t}')">Este período</button>
+          ${['diario','semanal','mensal','anual','tudo'].map(x => `<button class="secondary" style="padding:7px 14px;font-size:13px" onclick="savePDF('vendas','${x}')">${PERIOD_LABELS[x].slice(3)}</button>`).join('')}
+        </div>
+      </div>`;
+
+      html += `
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(190px, 1fr));gap:15px;margin-bottom:20px">
+        <div class="panel" style="margin:0"><div class="muted">Faturado (${REPORT_TITLES[t].replace(/ \(.*/, '')})</div><div style="font-size:22px;font-weight:800;color:var(--navy);margin-top:5px">${money(S.fat)}</div></div>
+        <div class="panel" style="margin:0"><div class="muted">CMV (custo das vendas)</div><div style="font-size:20px;font-weight:800;color:var(--muted);margin-top:5px">${money(S.cmv)}</div></div>
+        <div class="panel" style="margin:0"><div class="muted">Lucro bruto</div><div style="font-size:20px;font-weight:800;color:var(--green);margin-top:5px">${money(S.lucro)}</div><div class="muted">Margem ${pct(S.margem)}</div></div>
+        <div class="panel" style="margin:0"><div class="muted">Dinheiro em Caixa</div><div style="font-size:20px;font-weight:800;color:var(--green);margin-top:5px">${money(S.byMethod[0].t)}</div></div>
+        <div class="panel" style="margin:0"><div class="muted">M-Pesa / Outros</div><div style="font-size:18px;font-weight:800;color:var(--blue);margin-top:5px">${money(S.byMethod[1].t)} / ${money(S.byMethod[2].t + S.byMethod[3].t)}</div></div>
+      </div>`;
+
+      html += `
+      <div class="panel">
+        <h3>${REPORT_TITLES[t]} — Transações (${list.length})${S.semCusto ? ` <span class="tag" style="background:#fff4e5;color:#b45309">${S.semCusto} sem custo registado</span>` : ''}</h3>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Data / Hora</th><th>Operador</th><th>Itens Vendidos</th><th>Método</th><th style="text-align:right">Total</th><th>Estado</th><th>Ações</th></tr></thead>
+            <tbody>`;
+      if(list.length === 0) {
+        html += `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:30px">Nenhuma venda registada para este período.</td></tr>`;
+      } else {
+        list.forEach(s => {
+          const itensStr = (s.items || []).map(i => `${i.qty}x ${esc(i.name)} (${esc(i.size)}, ${esc(i.color)})`).join('<br>');
+          const estado = s.estornada
+            ? `<span class="tag" style="background:#ffebeb;color:#a3272e">Estornada</span>`
+            : s.archived ? `<span class="tag" style="background:#eceff3;color:#4b5563">Arquivada</span>`
+            : `<span class="tag" style="background:#e7f7ef;color:#176b48">Ativa</span>`;
+          html += `
+            <tr style="${s.estornada ? 'opacity:.55' : ''}">
+              <td><small>${new Date(s.date).toLocaleString('pt-MZ')}</small></td>
+              <td><b>${esc(s.cashier)}</b></td>
+              <td><div style="font-size:13px">${itensStr}</div></td>
+              <td><span style="background:#eef4fc;padding:4px 8px;border-radius:4px;font-weight:600">${esc(s.paymentMethod)}</span></td>
+              <td style="text-align:right"><b style="color:var(--green)">${money(s.total)}</b></td>
+              <td>${estado}</td>
+              <td style="white-space:nowrap">
+                <button class="secondary" style="padding:5px 10px;font-size:11px" onclick="reprintSale('${s.id}')">🖨️ Reimprimir</button>
+                ${isDono() && isActiveSale(s) ? `<button class="danger" style="padding:5px 10px;font-size:11px" onclick="estornarVenda('${s.id}')">Estornar</button>` : ''}
+                ${isDono() && s.archived ? `<button class="secondary" style="padding:5px 10px;font-size:11px" onclick="desarquivarVenda('${s.id}')">Desarquivar</button>` : ''}
+              </td>
+            </tr>`;
+        });
+      }
+      html += `</tbody></table></div></div>`;
+    } else {
+      const list = purchasesCache.filter(p => inPeriod(p.date, t) && (!q || (p.productName || '').toLowerCase().includes(q)));
+      html += `
+      <div class="panel" style="padding:15px;margin-bottom:15px">
+        <input style="width:280px" placeholder="Pesquisar por produto..." value="${esc(historySearch)}" onchange="setHistorySearch(this.value)">
+      </div>
+      <div class="panel"><h3>Compras de stock — ${list.length} registo(s) · Investido: ${money(sumBy(list, p => p.netCost))}</h3>
+        <div style="overflow-x:auto"><table>
+          <thead><tr><th>Data</th><th>Produto</th><th>Embalagens</th><th>Unidades</th><th style="text-align:right">Fatura</th><th style="text-align:right">Desconto</th><th style="text-align:right">Outros</th><th style="text-align:right">Custo líquido</th><th style="text-align:right">Custo unit.</th><th>Responsável</th></tr></thead>
+          <tbody>${list.length === 0 ? `<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:30px">Nenhuma compra neste período.</td></tr>` : list.map(p => `
+            <tr>
+              <td><small>${new Date(p.date).toLocaleString('pt-MZ')}</small></td>
+              <td><b>${esc(p.productName)}</b></td>
+              <td>${num(p.packs)} ${esc(p.packType || '')} × ${num(p.unitsPerPack)}</td>
+              <td><b>${num(p.totalUnits)}</b></td>
+              <td style="text-align:right">${money(p.invoiceTotal)}</td>
+              <td style="text-align:right">${money(p.invoiceDiscount)}</td>
+              <td style="text-align:right">${money(p.otherCosts)}</td>
+              <td style="text-align:right"><b>${money(p.netCost)}</b></td>
+              <td style="text-align:right">${money(p.unitCost)}</td>
+              <td>${esc(p.user || '')}</td>
+            </tr>`).join('')}</tbody>
+        </table></div>
+      </div>`;
+    }
+
+    $('contentArea').innerHTML = html;
+  }
+
+  // ---------- RELATÓRIOS (IMPRESSÃO E PDF) ----------
+  function buildSalesVia(type, list, viaLabel) {
+    const S = summarizeSales(list);
+    const active = list.filter(isActiveSale);
+    const prod = {};
+    active.forEach(s => (s.items || []).forEach(i => {
+      const k = `${i.name}|${i.size}|${i.color}`;
+      if(!prod[k]) prod[k] = { name: i.name, size: i.size, color: i.color, qty: 0, total: 0 };
+      prod[k].qty += num(i.qty);
+      prod[k].total += num(i.price) * num(i.qty);
+    }));
+    const prodRows = Object.values(prod).sort((a, b) => b.qty - a.qty).map(p =>
+      `<tr><td>${esc(p.name)}</td><td>${esc(p.size)} / ${esc(p.color)}</td><td style="text-align:right">${p.qty}</td><td style="text-align:right">${money(p.total)}</td></tr>`).join('');
+    const totalItens = Object.values(prod).reduce((a, p) => a + p.qty, 0);
+
+    const salesRows = active.map((s, idx) => {
+      const itens = (s.items || []).map(i => `${i.qty}x ${esc(i.name)} (${esc(i.size)}, ${esc(i.color)})`).join('<br>');
+      return `<tr><td>${idx + 1}</td><td style="white-space:nowrap">${new Date(s.date).toLocaleString('pt-MZ')}</td><td>${esc(s.cashier)}</td><td>${itens}</td><td>${esc(s.paymentMethod)}</td><td style="text-align:right;white-space:nowrap"><b>${money(s.total)}</b></td></tr>`;
+    }).join('');
+
+    return `
+    <div class="rep-via" style="color:#1c2733;font-size:12px">
+      <div style="text-align:right;margin-bottom:6px"><span style="display:inline-block;border:2px solid #173b63;color:#173b63;font-weight:800;font-size:11px;padding:3px 10px;border-radius:4px">${viaLabel}</span></div>
+      <div style="text-align:center;margin-bottom:14px">
+        <h2 style="margin:0;font-size:20px;text-transform:uppercase">${esc(appSettings.companyName)}</h2>
+        <div style="color:#667789">${esc(appSettings.topHeaderSuffix)}</div>
+        <h3 style="margin:10px 0 2px;font-size:16px">${REPORT_TITLES[type]}</h3>
+        <div style="color:#667789">Período: <b>${esc(periodLabel(type))}</b> &nbsp;|&nbsp; Emitido em ${new Date().toLocaleString('pt-MZ')} por ${esc(currentUser ? currentUser.name : '')}</div>
+      </div>
+
+      <table class="rep-table" style="margin-bottom:14px">
+        <thead><tr><th>Resumo</th><th style="text-align:right">Vendas</th><th style="text-align:right">Total</th></tr></thead>
+        <tbody>
+          ${S.byMethod.map(x => `<tr><td>${x.m}</td><td style="text-align:right">${x.n}</td><td style="text-align:right">${money(x.t)}</td></tr>`).join('')}
+          <tr style="font-weight:800;background:#f5f8fb"><td>TOTAL FATURADO</td><td style="text-align:right">${S.n}</td><td style="text-align:right">${money(S.fat)}</td></tr>
+          <tr><td>CMV (custo das vendas)</td><td></td><td style="text-align:right">${money(S.cmv)}</td></tr>
+          <tr style="font-weight:800"><td>LUCRO BRUTO (margem ${pct(S.margem)})</td><td></td><td style="text-align:right">${money(S.lucro)}</td></tr>
+          <tr><td colspan="3" style="color:#667789">Artigos vendidos: ${totalItens} un.${S.semCusto ? ` · ${S.semCusto} venda(s) anterior(es) sem custo registado` : ''}</td></tr>
+        </tbody>
+      </table>
+
+      <h4 style="margin:14px 0 6px">Vendas realizadas (${S.n})</h4>
+      <table class="rep-table">
+        <thead><tr><th>Nº</th><th>Data / Hora</th><th>Operador</th><th>Itens</th><th>Método</th><th style="text-align:right">Total</th></tr></thead>
+        <tbody>${salesRows}</tbody>
+        <tfoot><tr style="font-weight:800"><td colspan="5" style="text-align:right">TOTAL</td><td style="text-align:right">${money(S.fat)}</td></tr></tfoot>
+      </table>
+
+      <h4 style="margin:18px 0 6px">Artigos vendidos (resumo)</h4>
+      <table class="rep-table">
+        <thead><tr><th>Artigo</th><th>Tam. / Cor</th><th style="text-align:right">Qtd.</th><th style="text-align:right">Valor</th></tr></thead>
+        <tbody>${prodRows}</tbody>
+      </table>
+    </div>`;
+  }
+
+  function buildExpensesVia(type, list, viaLabel) {
+    const opex = list.filter(e => e.type !== 'aquisicao');
+    const aq = list.filter(e => e.type === 'aquisicao');
+    const byCat = {};
+    opex.forEach(e => { const c = e.category || 'Sem categoria'; byCat[c] = (byCat[c] || 0) + num(e.amount); });
+    const rows = list.map((e, idx) => `<tr><td>${idx + 1}</td><td style="white-space:nowrap">${new Date(e.date).toLocaleDateString('pt-MZ')}</td><td>${esc(e.title)}${e.description ? `<br><small>${esc(e.description)}</small>` : ''}</td><td>${esc(e.category)}</td><td>${esc(EXPENSE_TYPES[e.type] || e.type)}</td><td>${esc(e.responsavel || '')}</td><td style="text-align:right;white-space:nowrap"><b>${money(e.amount)}</b></td></tr>`).join('');
+    const catRows = Object.entries(byCat).sort((a, b) => b[1] - a[1]).map(([c, v]) => `<tr><td>${esc(c)}</td><td style="text-align:right">${money(v)}</td></tr>`).join('')
+      || '<tr><td colspan="2">Sem despesas operacionais</td></tr>';
+    return `
+    <div class="rep-via" style="color:#1c2733;font-size:12px">
+      <div style="text-align:right;margin-bottom:6px"><span style="display:inline-block;border:2px solid #173b63;color:#173b63;font-weight:800;font-size:11px;padding:3px 10px;border-radius:4px">${viaLabel}</span></div>
+      <div style="text-align:center;margin-bottom:14px">
+        <h2 style="margin:0;font-size:20px;text-transform:uppercase">${esc(appSettings.companyName)}</h2>
+        <div style="color:#667789">${esc(appSettings.topHeaderSuffix)}</div>
+        <h3 style="margin:10px 0 2px;font-size:16px">Relatório de Despesas — ${esc(periodLabel(type))}</h3>
+        <div style="color:#667789">Período: <b>${esc(periodLabel(type))}</b> &nbsp;|&nbsp; Emitido em ${new Date().toLocaleString('pt-MZ')} por ${esc(currentUser ? currentUser.name : '')}</div>
+      </div>
+      <table class="rep-table" style="margin-bottom:14px">
+        <thead><tr><th>Categoria</th><th style="text-align:right">Valor</th></tr></thead>
+        <tbody>
+          ${catRows}
+          <tr style="font-weight:800;background:#f5f8fb"><td>TOTAL DESPESAS OPERACIONAIS</td><td style="text-align:right">${money(sumBy(opex, e => e.amount))}</td></tr>
+          <tr><td colspan="2" style="color:#667789">Despesas de aquisição (não somadas: já estão no custo do stock): ${money(sumBy(aq, e => e.amount))}</td></tr>
+        </tbody>
+      </table>
+      <h4 style="margin:14px 0 6px">Lançamentos (${list.length})</h4>
+      <table class="rep-table">
+        <thead><tr><th>Nº</th><th>Data</th><th>Título</th><th>Categoria</th><th>Tipo</th><th>Responsável</th><th style="text-align:right">Valor</th></tr></thead>
+        <tbody>${rows || '<tr><td colspan="7">Sem despesas neste período.</td></tr>'}</tbody>
+      </table>
+    </div>`;
+  }
+
+  function buildReportDocument(kind, type, list) {
+    const build = kind === 'despesas' ? buildExpensesVia : buildSalesVia;
+    return build(type, list, 'VIA 1 — PASTA DE RELATÓRIOS')
+      + '<div class="html2pdf__page-break"></div>'
+      + build(type, list, 'VIA 2 — DONO');
+  }
+
+  async function getReportList(kind, type) {
+    if(kind === 'despesas') {
+      await loadExpenses();
+      return expensesCache.filter(e => inPeriod(e.date, type)).sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+    }
+    await loadSales();
+    return filterSalesByPeriod(salesCache, type);
+  }
+
+  // Abre a pré-visualização com as duas vias (Via 1 Pasta de Relatórios, Via 2 Dono)
+  async function openReport(kind, type) {
+    type = REPORT_TITLES[type] ? type : 'diario';
+    toast('A preparar relatório...');
+    const list = await getReportList(kind, type);
+    if(list.length === 0) return toast('Não há registos neste período para imprimir.');
+
+    document.body.classList.add('printing-report');
+    $('modalRoot').innerHTML = `
+      <div class="print-overlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);overflow:auto;padding:15px;z-index:99">
+        <div style="background:#fff;max-width:900px;margin:0 auto;padding:28px;border-radius:12px">
+          <div class="no-print" style="display:flex;gap:10px;justify-content:flex-end;margin-bottom:16px">
+            <button type="button" class="secondary" onclick="fecharModal()">Fechar</button>
+            <button type="button" class="warning" onclick="savePDF('${kind}','${type}')">💾 Salvar PDF</button>
+            <button type="button" class="success" onclick="window.print()">🖨️ Imprimir (2 vias)</button>
+          </div>
+          <div id="printReportModal">${buildReportDocument(kind, type, list)}</div>
+        </div>
+      </div>`;
+  }
+
+  window.printReport = (type) => openReport('vendas', type);
+  window.printExpenses = (type) => openReport('despesas', type);
+
+  function loadHtml2Pdf() {
+    if(window.html2pdf) return Promise.resolve(window.html2pdf);
+    return new Promise((resolve, reject) => {
+      const sc = document.createElement('script');
+      sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+      sc.onload = () => resolve(window.html2pdf);
+      sc.onerror = () => reject(new Error('não foi possível carregar o gerador de PDF (verifique a ligação à internet)'));
+      document.head.appendChild(sc);
+    });
+  }
+
+  window.savePDF = async function(kind, type) {
+    type = REPORT_TITLES[type] ? type : 'diario';
+    let holder = null;
+    try {
+      toast('A gerar PDF...');
+      const list = await getReportList(kind, type);
+      if(list.length === 0) return toast('Não há registos neste período.');
+      const html2pdf = await loadHtml2Pdf();
+
+      holder = document.createElement('div');
+      holder.style.cssText = 'position:absolute;left:-10000px;top:0;width:794px;background:#fff;';
+      holder.innerHTML = buildReportDocument(kind, type, list);
+      document.body.appendChild(holder);
+
+      const periodo = periodLabel(type).replace(/[\\/:*?"<>|]+/g, '-').replace(/\s+/g, '_');
+      const tipo = kind === 'despesas' ? 'Despesas' : 'Vendas';
+      const fileName = `${(appSettings.companyName || 'Loja').replace(/\s+/g, '_')}_${tipo}_${REPORT_FILE[type]}_${periodo}.pdf`;
+
+      await html2pdf().set({
+        margin: [12, 12, 12, 12],
+        filename: fileName,
+        image: { type: 'jpeg', quality: 0.95 },
+        html2canvas: { scale: 2, backgroundColor: '#ffffff' },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['css', 'legacy'] }
+      }).from(holder).save();
+
+      toast('PDF guardado: ' + fileName);
+    } catch(e) {
+      toast('Erro ao gerar PDF: ' + e.message);
+    } finally {
+      if(holder) holder.remove();
+    }
+  };
+
+  // ---------- VISÃO GERAL ----------
+  window.setDashPeriod = async function(t) { dashPeriod = t; await renderDashboard(); };
+  window.resetDashboard = async function() { dashPeriod = 'mensal'; await renderDashboard(); toast('Filtros repostos: Mês atual.'); };
+
+  function dashLine(label, value, color) {
+    return `<div class="dash-line"><span class="muted">${label}</span><b${color ? ` style="color:${color}"` : ''}>${value}</b></div>`;
+  }
+
+  async function renderDashboard() {
+    await loadProducts();
+    await loadSales();
+    await loadPurchases();
+    await loadExpenses();
+    await updatePendingBadge();
+    const t = dashPeriod;
+
+    const S = summarizeSales(filterSalesByPeriod(salesCache, t));
+    const purch = purchasesCache.filter(p => inPeriod(p.date, t));
+    const invoice = sumBy(purch, p => p.invoiceTotal);
+    const discount = sumBy(purch, p => p.invoiceDiscount);
+    const other = sumBy(purch, p => p.otherCosts);
+    const netInvest = sumBy(purch, p => p.netCost);
+
+    const stockValue = sumBy(productsCache, p => num(p.stock) * unitCostOf(p));
+    const esgotados = productsCache.filter(p => num(p.stock) <= 0);
+    const baixos = productsCache.filter(p => num(p.stock) > 0 && num(p.stock) <= STOCK_BAIXO);
+    const reposicao = sumBy(productsCache.filter(p => num(p.stock) <= STOCK_BAIXO), p => Math.max(0, REPOSICAO_IDEAL - num(p.stock)) * unitCostOf(p));
+
+    const exps = expensesCache.filter(e => inPeriod(e.date, t));
+    const opexList = exps.filter(e => e.type !== 'aquisicao');
+    const opex = sumBy(opexList, e => e.amount);
+    const aqExp = sumBy(exps.filter(e => e.type === 'aquisicao'), e => e.amount);
+    const lucroLiquido = S.lucro - opex;
+
+    const topCats = S.byCategory.slice(0, 3).map(([c, v]) => dashLine(esc(c), money(v))).join('') || '<div class="muted" style="font-size:13px">Sem vendas neste período.</div>';
+    const expByCat = {};
+    opexList.forEach(e => { const c = e.category || 'Sem categoria'; expByCat[c] = (expByCat[c] || 0) + num(e.amount); });
+    const topExp = Object.entries(expByCat).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([c, v]) => dashLine(esc(c), money(v))).join('') || '<div class="muted" style="font-size:13px">Sem despesas operacionais.</div>';
+
+    $('contentArea').innerHTML = head('Visão Geral', `<div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${periodButtons(t, 'setDashPeriod')}
+        <button class="secondary" style="padding:7px 14px;font-size:13px" onclick="resetDashboard()">↺ Limpar filtros</button></div>`) + `
+    <div class="dash-grid">
+      <div class="dash-card">
+        <h3>1. Investimento em stock</h3>
+        <div class="dash-big">${money(netInvest)}</div>
+        <div class="muted">investido em compras no período</div>
+        <div style="margin-top:10px">${dashLine('Stock atual a custo', money(stockValue))}${dashLine('Compras registadas', purch.length + ' compra(s)')}</div>
+        <div class="dash-legend">Custo líquido de cada compra = fatura − desconto + outros custos de aquisição. O "stock atual" usa o custo unitário médio de cada artigo.</div>
+      </div>
+
+      <div class="dash-card">
+        <h3>2. Desconto na fatura</h3>
+        <div class="dash-big" style="color:var(--green)">${money(discount)}</div>
+        <div class="muted">desconto obtido no período</div>
+        <div style="margin-top:10px">${dashLine('Valor da fatura (antes do desconto)', money(invoice))}${dashLine('Outros custos de aquisição', money(other))}${dashLine('Custo após desconto', money(netInvest), 'var(--navy)')}</div>
+        <div class="dash-legend">Se não houver compras no período, todos os valores ficam em 0,00 MT.</div>
+      </div>
+
+      <div class="dash-card">
+        <h3>3. Faturamento do produto</h3>
+        <div class="dash-big">${money(S.fat)}</div>
+        <div class="muted">${S.n} venda(s) ativa(s)</div>
+        <div style="margin-top:10px">${dashLine('Dinheiro', money(S.byMethod[0].t))}${dashLine('M-Pesa', money(S.byMethod[1].t))}${dashLine('e-Mola', money(S.byMethod[2].t))}${dashLine('mKesh', money(S.byMethod[3].t))}</div>
+        <div style="margin-top:8px;font-size:12px;font-weight:700;color:var(--navy)">Maiores categorias</div>
+        ${topCats}
+        <div class="dash-legend">Só vendas ativas. Vendas estornadas ou arquivadas não entram.</div>
+      </div>
+
+      <div class="dash-card">
+        <h3>4. CMV e lucro do produto</h3>
+        <div class="dash-big" style="color:var(--green)">${money(S.lucro)}</div>
+        <div class="muted">lucro bruto · margem ${pct(S.margem)}</div>
+        <div style="margin-top:10px">${dashLine('CMV (custo das vendas)', money(S.cmv))}${dashLine('Faturamento', money(S.fat))}</div>
+        ${S.semCusto ? `<div class="alert info" style="margin:10px 0 0;font-size:12px">${S.semCusto} venda(s) anterior(es) não têm custo registado; o CMV dessas vendas está em 0,00 MT.</div>` : ''}
+        <div class="dash-legend">CMV = quantidade vendida × custo unitário no momento da venda. Lucro = faturamento − CMV. Margem = lucro ÷ faturamento.</div>
+      </div>
+
+      <div class="dash-card">
+        <h3>5. Dinheiro para repor stock</h3>
+        <div class="dash-big" style="color:${reposicao > 0 ? 'var(--red)' : 'var(--green)'}">${money(reposicao)}</div>
+        <div class="muted">valor estimado para repor (stock atual)</div>
+        <div style="margin-top:10px">${dashLine('Esgotados', esgotados.length + ' artigo(s)', 'var(--red)')}${dashLine(`Stock baixo (≤ ${STOCK_BAIXO})`, baixos.length + ' artigo(s)', 'var(--orange)')}</div>
+        <div class="dash-legend">Reposição = (${REPOSICAO_IDEAL} − stock atual) × custo unitário, para artigos com stock ≤ ${STOCK_BAIXO}. Não depende do período.</div>
+      </div>
+
+      <div class="dash-card">
+        <h3>6. Despesas e lucro líquido operacional</h3>
+        <div class="dash-big" style="color:${lucroLiquido >= 0 ? 'var(--green)' : 'var(--red)'}">${money(lucroLiquido)}</div>
+        <div class="muted">lucro líquido operacional</div>
+        <div style="margin-top:10px">${dashLine('Lucro bruto', money(S.lucro))}${dashLine('Despesas operacionais', money(opex), 'var(--red)')}${dashLine('Despesas de aquisição (não contabilizadas)', money(aqExp), 'var(--muted)')}</div>
+        <div style="margin-top:8px;font-size:12px;font-weight:700;color:var(--navy)">Maiores despesas</div>
+        ${topExp}
+        <div class="dash-legend">Lucro líquido = lucro bruto − despesas operacionais. As despesas de aquisição não entram para evitar dupla contagem com as compras de stock.</div>
+      </div>
+    </div>
+    <div class="panel"><h3>Bem-vindo ao ${esc(appSettings.companyName)}</h3><p class="muted">Use o menu lateral para o Caixa, o Stock, as Despesas, o Histórico e as Definições. Os números desta página respeitam o período escolhido no topo.</p></div>`;
+  }
+</script>
+</body>
+</html>
